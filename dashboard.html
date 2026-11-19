@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    {{PC}}
+    .topbar{display:flex;justify-content:space-between;align-items:center;padding:12px 24px;background:#050508b8;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+    .logo{font-size:20px;font-weight:900}
+    .logo span{background:linear-gradient(135deg,#818cf8,#c084fc,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;font-weight:900}
+    .tabs-bar{display:flex;gap:8px;padding:14px 24px 0;overflow-x:auto}
+    .tab{flex-shrink:0;padding:9px 16px;border-radius:12px;background:#ffffff08;border:1px solid var(--border);color:var(--muted);font-weight:700;font-size:13px;cursor:pointer}
+    .tab.active{background:linear-gradient(135deg,#6366f13d,#c084fc3d);color:#fff;border-color:#c084fc61}
+    .content{padding:20px 24px;max-width:1120px;margin:0 auto}
+    .tab-panel{display:none}
+    .tab-panel.active{display:block}
+    .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:20px}
+    .card-value{font-size:26px;font-weight:900}
+    .text-gold{color:var(--gold)}
+    .text-usd{color:var(--success)}
+    .points-big{font-size:64px;font-weight:900;color:var(--gold);line-height:1}
+    .server-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+    .live-badge{display:inline-flex;align-items:center;gap:8px;background:#10b9811f;border:1px solid var(--success);padding:6px 16px;border-radius:99px;font-size:12px;color:var(--success);font-weight:800;margin-bottom:16px}
+    .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="logo">⚡ SLAP <span>AURA</span></div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="avatar">{{USER_INITIAL}}</div>
+      <div>
+        <div style="font-weight:800;font-size:14px">{{USER_NAME}}</div>
+        <span class="role-badge" style="color:{{ROLE_COLOR}}">{{ROLE_EMOJI}} {{ROLE_LABEL}}</span>
+      </div>
+      <button class="btn btn-ghost" style="padding:7px 12px;font-size:12px" onclick="logout()">خروج</button>
+    </div>
+  </div>
+
+  <div class="tabs-bar">
+    <button class="tab active" data-tab="home">🏠 الرئيسية</button>
+    <button class="tab" data-tab="ai">🤖 AI Support</button>
+    <button class="tab" data-tab="plans">👑 الاشتراكات</button>
+    <button class="tab" data-tab="gift">🎁 الرصيد والهدايا</button>
+    <button class="tab" data-tab="keys">🔑 المفتاح</button>
+    <button class="tab" data-tab="points">⭐ النقاط</button>
+    <button class="tab" data-tab="finder">🔍 Finder</button>
+    <button class="tab" data-tab="referral">🔗 الإحالة</button>
+    <button class="tab" data-tab="support">🎫 الدعم</button>
+  </div>
+
+  <div class="content">
+    <div class="tab-panel active" id="tab-home">
+      <div class="stats">
+        <div class="card"><label>الرتبة</label><div class="card-value" style="color:{{ROLE_COLOR}};font-size:20px">{{ROLE_EMOJI}} {{ROLE_LABEL}}</div></div>
+        <div class="card"><label>الباقة</label><div class="card-value" style="color:{{TIER_COLOR}};font-size:20px" id="s-tier">{{TIER_EMOJI}} {{TIER_LABEL}}</div></div>
+        <div class="card"><label>الرصيد ($)</label><div class="card-value text-usd" id="s-usd">${{BALANCE}}</div></div>
+        <div class="card"><label>النقاط</label><div class="card-value text-gold" id="s-points">{{POINTS}}</div></div>
+        <div class="card">
+          <label>المفتاح</label>
+          <div class="card-value" style="font-size:13px;font-family:monospace;color:#a5b4fc" id="s-key">{{KEY}}</div>
+          <div style="font-size:12px;color:var(--success);font-weight:800;margin-top:4px" id="s-exp">{{EXP}}</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:18px">
+        <h3 style="margin-bottom:8px">🔒 Tier Locked</h3>
+        <ul id="tier-features-list" style="list-style:none;font-size:13px;line-height:1.8"></ul>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom:10px">📧 توثيق البريد</h3>
+        <div id="email-step-1">
+          <input type="email" id="userEmail" value="{{EMAIL}}">
+          <button class="btn btn-primary" onclick="sendVerifyCode()" style="width:100%">إرسال الكود 📨</button>
+        </div>
+        <div id="email-step-2" style="display:none">
+          <input type="text" id="userCode" maxlength="6" style="text-align:center;font-size:20px;letter-spacing:8px">
+          <button class="btn btn-primary" onclick="verifyCode()" style="width:100%">تأكيد ✅</button>
+        </div>
+        <div id="email-step-3" style="display:none">
+          <div style="background:#10b9811f;border:1px solid var(--success);color:var(--success);padding:12px;border-radius:12px;text-align:center;font-weight:800">
+            ✅ موثق: <span id="verifiedEmailText" style="color:#fff">{{EMAIL}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-ai">
+      <div class="card" style="max-width:740px;margin:0 auto">
+        <h3>🤖 AI Support</h3>
+        <div id="ai-msgs" style="height:300px;overflow-y:auto;background:#000;border:1px solid var(--border);border-radius:12px;padding:14px;margin:12px 0;display:flex;flex-direction:column;gap:8px">
+          <div style="background:#6366f11f;border:1px solid var(--primary);padding:10px 12px;border-radius:10px;font-size:13px">مرحباً! كيف أساعدك؟</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <input type="text" id="ai-input" style="margin:0;flex:1" onkeypress="if(event.key==='Enter')sendAI()">
+          <button class="btn btn-primary" onclick="sendAI()">إرسال</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-plans">
+      <div style="text-align:center;margin-bottom:20px">
+        <h2>👑 الاشتراكات</h2>
+        <p style="color:var(--muted)">الرصيد: <b style="color:var(--success)" id="plans-usd">${{BALANCE}}</b></p>
+      </div>
+      <div class="grid2" style="max-width:700px;margin:0 auto" id="plans-grid"></div>
+    </div>
+
+    <div class="tab-panel" id="tab-gift">
+      <div class="card" style="margin-bottom:18px">
+        <h3>💳 شحن رصيد ($)</h3>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0">
+          <button type="button" class="btn btn-ghost" onclick="topupAmt.value=5">$5</button>
+          <button type="button" class="btn btn-ghost" onclick="topupAmt.value=10">$10</button>
+          <button type="button" class="btn btn-ghost" onclick="topupAmt.value=25">$25</button>
+          <button type="button" class="btn btn-ghost" onclick="topupAmt.value=50">$50</button>
+        </div>
+        <input type="number" id="topupAmt" min="0.5" max="10000" step="0.01" placeholder="المبلغ ($)">
+        <button class="btn btn-success" onclick="buyUsd()" style="width:100%">💳 متابعة للشراء</button>
+      </div>
+      <div class="grid2">
+        <div class="card">
+          <h3>🎁 إهداء دولارات ($)</h3>
+          <input type="email" id="gift-usd-email" placeholder="friend@example.com">
+          <input type="number" id="gift-usd-amt" min="0.5" step="0.01" placeholder="المبلغ">
+          <input type="text" id="gift-usd-note" maxlength="140" placeholder="رسالة">
+          <button class="btn btn-success" onclick="sendGiftUsd()" style="width:100%">💵 إرسال</button>
+        </div>
+        <div class="card">
+          <h3>👑 إهداء خطة</h3>
+          <input type="email" id="gift-plan-email" placeholder="friend@example.com">
+          <select id="gift-plan-tier">
+            <option value="pro">⚡ Pro — $5</option>
+            <option value="lifetime">🥈 Lifetime — $30</option>
+          </select>
+          <input type="text" id="gift-plan-note" maxlength="140" placeholder="رسالة">
+          <button class="btn btn-primary" onclick="sendGiftPlan()" style="width:100%">💳 دفع وإرسال 🎁</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-keys">
+      <div class="card" style="margin-bottom:18px">
+        <h3>🔑 المفتاح</h3>
+        <div class="terminal-box" id="keyDisplay">{{KEY}}</div>
+        <p style="text-align:center;color:var(--success);font-weight:800;margin-bottom:12px" id="key-exp">⏱️ {{EXP}}</p>
+        <button class="btn btn-primary" onclick="copyKey()" style="width:100%">📋 نسخ</button>
+      </div>
+      <div class="card">
+        <h3>🚀 اللودر</h3>
+        <div class="terminal-box" style="font-size:13px;overflow-x:auto;white-space:nowrap" id="loaderCode">loadstring(game:HttpGet("{{LOADER_URL}}"))()</div>
+        <button class="btn btn-primary" onclick="copyLoader()" style="width:100%">📋 نسخ</button>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-points">
+      <div class="card" style="text-align:center;padding:36px">
+        <div style="color:var(--muted);font-weight:800">النقاط</div>
+        <div class="points-big" id="bigPoints">{{POINTS}}</div>
+        <button class="btn btn-success" onclick="claimDaily()" style="margin-top:20px">📅 يومي (+{{DAILY_POINTS}})</button>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-finder">
+      <div class="live-badge">● Live</div>
+      <div id="serverList">جاري التحميل...</div>
+    </div>
+
+    <div class="tab-panel" id="tab-referral">
+      <div class="card">
+        <h3>🔗 الإحالة (+{{REF_POINTS}} نقطة)</h3>
+        <div class="terminal-box">{{REF_CODE}}</div>
+        <button class="btn btn-primary" onclick="copyRef()" style="width:100%">📋 نسخ</button>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-support">
+      <div class="card" style="max-width:540px;margin:0 auto">
+        <h3>🎫 تذكرة دعم</h3>
+        <input type="text" id="t-userid" placeholder="Roblox ID">
+        <input type="email" id="t-email" value="{{EMAIL}}">
+        <textarea id="t-msg" rows="4" placeholder="المشكلة..."></textarea>
+        <button class="btn btn-primary" onclick="submitTicket()" style="width:100%">إرسال 🚀</button>
+        <div id="t-result" style="margin-top:10px;text-align:center;font-weight:800"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <script>
+    var userPoints={{POINTS}},userBalance={{BALANCE}},lastBal={{BALANCE}},buyingLock=false,refCode="{{REF_CODE}}",userEmail="{{EMAIL}}",lastKey="{{KEY}}",EPV_LINKS={{EPV_LINKS_JSON}},DAILY_PTS={{DAILY_POINTS}};
+    var PLANS_META={pro:{label:"Pro",emoji:"⚡",price:5,days:30,color:"#6366f1",unlocked:0},lifetime:{label:"Lifetime",emoji:"🥈",price:30,days:0,color:"#c084fc",unlocked:1}};
+    var FEAT_LIST=[["basicAutoFarm","Auto Farm",1],["speedHack","Speed Hack",0],["teleport","Teleport",0],["noclip","Noclip",0],["fly","Fly",0],["esp","ESP",0]];
+    function renderTierUI(tier){
+      var isPaid=(tier==="pro"||tier==="lifetime");
+      var fl=document.getElementById("tier-features-list");
+      if(fl)fl.innerHTML=FEAT_LIST.map(function(x){var ok=x[2]||isPaid;return'<li style="display:flex;justify-content:space-between;align-items:center;padding:4px 0"><span>'+(ok?"✅":"🔒")+' '+x[1]+'</span>'+(ok?'<span style="color:var(--success);font-size:11px;font-weight:800">مفتوح</span>':'<span class="lock-pill">Tier Locked</span>')+'</li>'}).join("");
+      var pg=document.getElementById("plans-grid");
+      if(pg)pg.innerHTML=["pro","lifetime"].map(function(tk){var c=PLANS_META[tk],cur=tier===tk,pop=tk==="lifetime";return'<div class="card" style="text-align:center;padding:24px 20px;'+(pop?"border-color:#c084fc8c":"")+'">'+(pop?'<div style="font-size:11px;color:var(--secondary);font-weight:800">⭐ الأكثر شعبية</div>':"")+'<div style="font-size:38px">'+c.emoji+'</div><h3 style="font-size:20px;margin:6px 0">'+c.label+'</h3><div style="font-size:30px;font-weight:900;color:'+c.color+'">$'+c.price+'</div><p style="color:var(--muted);margin-bottom:14px">'+(c.days===0?"للأبد":c.days+" يوم")+'</p><ul style="list-style:none;margin-bottom:18px;text-align:right;color:var(--muted);font-size:13px;line-height:1.8">'+FEAT_LIST.map(function(x){return"<li>"+(x[2]||isPaid||c.unlocked?"✅":"🔒")+" "+x[1]+"</li>"}).join("")+'</ul>'+(cur?'<button class="btn btn-ghost" style="width:100%;opacity:.6" disabled>مُفعّلة ✓</button>':'<button class="btn btn-success" onclick="buyFromBalance(\''+tk+'\','+c.price+')" style="width:100%;margin-bottom:8px">💵 من الرصيد ($'+c.price+')</button><button class="btn btn-primary" onclick="buyPlan(\''+tk+'\')" style="width:100%">💳 دفع</button>')+'</div>'}).join("");
+    }
+    renderTierUI("{{TIER_LABEL}}".toLowerCase());
+    function toast(m,t='ok'){toast.textContent=m;toast.className='toast show '+t;setTimeout(()=>toast.classList.remove('show'),3000)}
+    document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{var n=b.dataset.tab;document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===n));document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active',p.id==='tab-'+n));if(n==='finder')loadFinder()});
+    async function syncMe(){if(buyingLock)return;try{var d=await(await fetch('/api/me',{cache:'no-store'})).json();if(!d.success||buyingLock)return;userPoints=d.points||0;var nb=Number(d.balance||0);if(nb>lastBal)toast('💵 +$'+(nb-lastBal).toFixed(2));userBalance=nb;lastBal=nb;updatePts();updateUsd();var k=d.currentKey||'لا يوجد',kd=d.currentKey||'لا يوجد مفتاح';if(d.currentKey&&d.currentKey!==lastKey){lastKey=d.currentKey;toast('🎁 تم التفعيل!')}document.getElementById('s-key').textContent=k;keyDisplay.textContent=kd;document.getElementById('s-exp').textContent=d.exp;document.getElementById('key-exp').textContent='⏱️ '+d.exp;var st=document.getElementById('s-tier');if(st){st.textContent=(d.tierEmoji||'')+' '+(d.tierLabel||'Free');st.style.color=d.tierColor||'#8b92a5'}renderTierUI(d.tier||'free')}catch{}}
+    setInterval(syncMe,6e3);
+    async function buyUsd(){var amt=parseFloat(document.getElementById('topupAmt').value);if(!amt||amt<.5||amt>1e4)return toast('رقم غير صحيح','err');var d=await(await fetch('/api/topup/usd',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:amt})})).json();if(d.success&&d.payUrl)location.href=d.payUrl;else toast(d.message||'فشل','err')}
+    function buyPlan(p){var u=EPV_LINKS[p];if(!u)return toast('غير متوفر','err');if(userEmail)u+=(u.includes('?')?'&':'?')+'email='+encodeURIComponent(userEmail);location.href=u}
+    async function buyFromBalance(tier,price){if(buyingLock)return;buyingLock=true;try{var d=await(await fetch('/api/buy-balance',{method:'POST',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify({tier,price})})).json();if(d.success){var nb=Number(d.balance);userBalance=Number.isFinite(nb)?nb:Math.max(0,Number((userBalance-(price||0)).toFixed(2)));lastBal=userBalance;updateUsd();lastKey=d.key;document.getElementById('s-key').textContent=d.key;keyDisplay.textContent=d.key;renderTierUI(tier);toast('🎉 تم الشراء!')}else toast(d.message||'فشل','err')}finally{setTimeout(()=>{buyingLock=false},1500)}}
+    async function sendGiftUsd(){if(buyingLock)return;var em=document.getElementById('gift-usd-email').value.trim(),amt=parseFloat(document.getElementById('gift-usd-amt').value),nt=document.getElementById('gift-usd-note').value.trim();if(!em||!amt||amt<=0)return toast('بيانات غير صحيحة','err');if(amt>userBalance)return toast('الرصيد غير كافٍ','err');buyingLock=true;try{var d=await(await fetch('/api/gift/usd',{method:'POST',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:em,amount:amt,note:nt})})).json();if(d.success){var nb=Number(d.balance);userBalance=Number.isFinite(nb)?nb:Math.max(0,Number((userBalance-amt).toFixed(2)));lastBal=userBalance;updateUsd();document.getElementById('gift-usd-amt').value='';document.getElementById('gift-usd-note').value='';toast('💵 تم الإرسال')}else toast(d.message||'فشل','err')}finally{setTimeout(()=>{buyingLock=false},1500)}}
+    async function sendGiftPlan(){var em=document.getElementById('gift-plan-email').value.trim(),tr=document.getElementById('gift-plan-tier').value,nt=document.getElementById('gift-plan-note').value.trim();if(!em)return toast('اكتب الإيميل','err');var d=await(await fetch('/api/gift/plan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:em,tier:tr,note:nt})})).json();if(d.success&&d.payUrl)location.href=d.payUrl;else toast(d.message||'فشل','err')}
+    function copyKey(){var k=keyDisplay.textContent.trim();if(k==='لا يوجد مفتاح')return toast('مفيش مفتاح','err');navigator.clipboard.writeText(k);toast('📋 تم النسخ')}
+    function copyLoader(){navigator.clipboard.writeText(loaderCode.textContent);toast('📋 تم')}
+    function copyRef(){navigator.clipboard.writeText(refCode);toast('📋 تم')}
+    async function sendVerifyCode(){var e=document.getElementById('userEmail').value.trim();if(!e)return toast('اكتب الإيميل','err');var d=await(await fetch('/send_code?email='+encodeURIComponent(e))).json();if(d.success){document.getElementById('email-step-1').style.display='none';document.getElementById('email-step-2').style.display='block';toast('✅ تم الإرسال')}else toast(d.message||'فشل الإرسال','err')}
+    async function verifyCode(){var c=userCode.value.trim();if(c.length!==6)return toast('6 أرقام','err');var d=await(await fetch('/verify_code?code='+c)).json();if(d.success){userEmail=document.getElementById('userEmail').value.trim();if(document.getElementById('verifiedEmailText'))document.getElementById('verifiedEmailText').textContent=userEmail;document.getElementById('email-step-2').style.display='none';document.getElementById('email-step-3').style.display='block';toast('✅ تم التوثيق!')}else toast(d.message||'خطأ','err')}
+    async function claimDaily(){var d=await(await fetch('/api/claim-daily',{method:'POST'})).json();if(d.success){userPoints=d.points;updatePts();toast('✅ +'+DAILY_PTS)}else toast(d.message||'فشل','err')}
+    function updatePts(){['s-points','bigPoints'].forEach(i=>{var e=document.getElementById(i);if(e)e.textContent=userPoints})}
+    function updateUsd(){var f='$'+Number(userBalance||0).toFixed(2);['s-usd','plans-usd'].forEach(i=>{var e=document.getElementById(i);if(e)e.textContent=f})}
+    async function loadFinder(){var d=await(await fetch('/api/finder/servers')).json();if(!d.success||!d.servers.length){serverList.innerHTML='<p style="text-align:center;color:var(--muted);padding:30px">لا توجد سيرفرات.</p>';return}var icons={EXTREME:'🔴',HIGH:'🟠',MEDIUM:'🟡',SAFE:'🟢',NONE:'⚪'};serverList.innerHTML=d.servers.map(s=>{var gl=(s.rareGloves.length>0?s.rareGloves:s.gloves.slice(0,4)).map(g=>'<span style="padding:5px 10px;border-radius:8px;font-size:12px;font-weight:800;background:#c084fc1f;color:var(--secondary);margin:2px;display:inline-block">'+(icons[g.danger]||'')+' '+g.name+'</span>').join('');return'<div class="server-card"><div><div>'+gl+'</div><div style="color:var(--muted);font-size:12px">#'+s.jobId.slice(0,8)+' • '+s.players+'/'+s.maxPlayers+' • '+s.ageSec+'s</div></div><button class="btn btn-primary" onclick="navigator.clipboard.writeText(\''+s.jobId+'\');toast(\'📋 تم النسخ\')">📋 نسخ</button></div>'}).join('')}
+    async function submitTicket(){var u=document.getElementById('t-userid').value.trim(),e=document.getElementById('t-email').value.trim(),m=document.getElementById('t-msg').value.trim(),r=document.getElementById('t-result');if(!u||!e||!m){r.style.color='#ef4444';r.textContent='اكمل الحقول';return}var d=await(await fetch('/ticket?userid='+encodeURIComponent(u)+'&email='+encodeURIComponent(e)+'&msg='+encodeURIComponent(m))).json();if(d.success){r.style.color='#10b981';r.textContent='✅ تم الإرسال';document.getElementById('t-msg').value=''}else{r.style.color='#ef4444';r.textContent='❌ '+(d.message||'فشل')}}
+    async function sendAI(){var inp=document.getElementById('ai-input'),txt=inp.value.trim();if(!txt)return;inp.value='';var msgs=document.getElementById('ai-msgs'),escH=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'),ld=document.createElement('div');msgs.innerHTML+='<div><b>أنت:</b> '+escH(txt)+'</div>';ld.style.color='#94a3b8';ld.innerHTML='<b>AI:</b> ⏳ جاري الرد...';msgs.appendChild(ld);msgs.scrollTop=msgs.scrollHeight;var ac=new AbortController(),tm=setTimeout(()=>ac.abort(),12e3);try{var res=await fetch('/api/ai-chat',{method:'POST',signal:ac.signal,headers:{'Content-Type':'application/json'},body:JSON.stringify({message:txt})});clearTimeout(tm);var raw=await res.text(),d={};try{d=JSON.parse(raw)}catch{d={reply:'⚠️ ('+res.status+'): '+raw.slice(0,120)}}ld.style.color=(d.reply&&d.reply.startsWith('⚠️'))?'#f87171':'#e2e8f0';ld.innerHTML='<b>AI:</b> '+escH(d.reply||'⚠️ لا يوجد رد')}catch(e){clearTimeout(tm);ld.style.color='#f87171';ld.innerHTML='<b>AI:</b> ⚠️ '+(e.name==='AbortError'?'انتهت المهلة':'خطأ اتصال')}msgs.scrollTop=msgs.scrollHeight}
+    async function logout(){await fetch('/api/logout',{method:'POST'});location.href='/'}
+  </script>
+</body>
+</html>
