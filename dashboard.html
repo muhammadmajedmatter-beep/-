@@ -1,871 +1,605 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>SLAP AURA - Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Slap Aura - Dashboard</title>
   <style>
-    :root{
-      --bg:#050509;
-      --card:#12121cc7;
-      --border:#ffffff1c;
-      --text:#ffffff;
-      --muted:#949cb0;
-      --primary:#6366f1;
-      --secondary:#c084fc;
-      --success:#10b981;
-      --danger:#ef4444;
-      --warn:#fbbf24;
+    :root {
+      --bg: #09090b;
+      --card: #121216;
+      --card-2: #17171c;
+      --line: #27272a;
+      --text: #f4f4f5;
+      --muted: #a1a1aa;
+      --accent: #ef4444;
+      --accent-hover: #dc2626;
+      --ok: #22c55e;
+      --warn: #f59e0b;
     }
-    *{margin:0;padding:0;box-sizing:border-box;font-family:'Cairo',sans-serif}
-    body{
-      background:var(--bg);
-      color:var(--text);
-      min-height:100vh;
-      background-image:
-        radial-gradient(circle at 10% 15%,#6366f12e,transparent 34%),
-        radial-gradient(circle at 90% 82%,#c084fc2b,transparent 36%),
-        radial-gradient(circle at 50% 50%,#10b9810d,transparent 55%);
-      background-attachment:fixed;
-      overflow-x:hidden;
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at top right, rgba(239,68,68,0.14), transparent 45%), var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, sans-serif;
+      padding: 20px;
     }
+    .wrap {
+      max-width: 1120px;
+      margin: 0 auto;
+      animation: fadeUp 0.35s ease;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px 20px;
+      margin-bottom: 18px;
+    }
+    .brand-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .logo {
+      font-weight: 900;
+      font-size: 20px;
+      letter-spacing: 0.4px;
+      color: #fff;
+    }
+    .role-badge {
+      padding: 4px 11px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(239,68,68,0.14);
+      color: #f87171;
+    }
+    .user-meta {
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .actions-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    button, a.btn-link {
+      border: 1px solid var(--line);
+      background: var(--card-2);
+      color: var(--text);
+      padding: 9px 14px;
+      border-radius: 11px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform 0.15s, background 0.2s, border-color 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    button:hover, a.btn-link:hover {
+      transform: translateY(-1px);
+      border-color: var(--accent);
+    }
+    .btn-red {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+    .btn-red:hover { background: var(--accent-hover); }
 
-    /* Keyframes & Animations */
-    @keyframes popIn{
-      from{opacity:0;transform:translateY(14px) scale(.97)}
-      to{opacity:1;transform:none}
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
     }
-    @keyframes cardEnter{
-      from{opacity:0;transform:translateY(10px)}
-      to{opacity:1;transform:none}
+    .stat {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px;
+      transition: border-color 0.2s, transform 0.2s;
     }
-    @keyframes pulseGlow{
-      0%,100%{box-shadow:0 0 0 0 #10b98100}
-      50%{box-shadow:0 0 26px 6px #10b98188}
-    }
-    @keyframes softFloat{
-      0%,100%{transform:translateY(0)}
-      50%{transform:translateY(-3px)}
-    }
-    @keyframes livePulse{
-      0%,100%{transform:scale(1);opacity:1}
-      50%{transform:scale(1.35);opacity:.55}
-    }
-    @keyframes ripple{
-      to{transform:scale(4);opacity:0}
-    }
-    @keyframes cfFall{
-      0%{transform:translateY(-20px) rotate(0deg);opacity:1}
-      100%{transform:translateY(105vh) rotate(720deg);opacity:0}
-    }
-    @keyframes toastIn{
-      from{opacity:0;transform:translateY(26px) scale(.96)}
-      to{opacity:1;transform:none}
-    }
-    @keyframes barShrink{
-      from{width:100%}
-      to{width:0}
-    }
+    .stat:hover { border-color: rgba(239,68,68,0.45); transform: translateY(-2px); }
+    .stat-label { color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+    .stat-val { font-size: 22px; font-weight: 800; word-break: break-all; }
+    .stat-sub { color: var(--muted); font-size: 12px; margin-top: 6px; }
 
-    /* Topbar & Navigation */
-    .topbar{
-      display:flex;justify-content:space-between;align-items:center;
-      padding:11px 16px;border-bottom:1px solid var(--border);
-      position:sticky;top:0;background:#07070ee8;backdrop-filter:blur(12px);
-      z-index:100;transition:border-color .25s;
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 16px;
+      margin-bottom: 18px;
     }
-    .topbar:hover{border-bottom-color:#c084fc38}
-    .brand-title{font-size:16px;font-weight:900;letter-spacing:.3px}
-    .live-dot{
-      width:8px;height:8px;border-radius:50%;background:var(--success);
-      box-shadow:0 0 8px var(--success);animation:livePulse 2s infinite ease-in-out;
-      display:inline-block;
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
     }
-    .dots-btn{
-      width:36px;height:36px;border-radius:10px;background:#ffffff10;
-      border:1px solid var(--border);color:#fff;font-size:19px;font-weight:900;
-      cursor:pointer;display:flex;align-items:center;justify-content:center;
-      transition:.18s ease;
+    .panel h2 {
+      margin: 0 0 12px;
+      font-size: 17px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
-    .dots-btn:hover{background:#ffffff1e;border-color:#c084fc60;transform:scale(1.05)}
-    .dots-btn:active{transform:scale(.92)}
+    .key-box {
+      background: #0b0b0e;
+      border: 1px dashed #3f3f46;
+      border-radius: 12px;
+      padding: 12px;
+      font-family: monospace;
+      font-size: 13px;
+      color: #fca5a5;
+      word-break: break-all;
+      margin-bottom: 12px;
+    }
+    .tiers-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin-top: 10px;
+    }
+    .tier-card {
+      background: var(--card-2);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 12px;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .tier-card:hover { transform: translateY(-2px); border-color: var(--accent); }
+    .tier-card.current { border-color: var(--accent); box-shadow: 0 0 0 1px rgba(239,68,68,0.35); }
+    .tier-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .tier-name { font-size: 16px; font-weight: 800; }
+    .tier-price { font-size: 20px; font-weight: 900; color: #f87171; }
+    .tier-desc { color: var(--muted); font-size: 12px; line-height: 1.5; }
 
-    .drawer-bg{
-      position:fixed;inset:0;background:#000a;backdrop-filter:blur(2px);
-      z-index:200;opacity:0;pointer-events:none;transition:.22s ease;
+    .features-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
     }
-    .drawer-bg.open{opacity:1;pointer-events:auto}
-    .drawer{
-      position:fixed;top:0;right:0;bottom:0;width:255px;
-      background:#0d0d17fa;border-left:1px solid var(--border);
-      padding:14px 12px;z-index:201;transform:translateX(100%);
-      transition:.26s cubic-bezier(.22,1,.36,1);display:flex;flex-direction:column;gap:5px;
+    .feat-item {
+      background: var(--card-2);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
     }
-    .drawer.open{transform:translateX(0)}
-    .nav-item{
-      width:100%;text-align:right;padding:10px 12px;border-radius:11px;
-      background:transparent;border:1px solid transparent;color:var(--muted);
-      font-weight:800;font-size:13px;cursor:pointer;display:flex;
-      justify-content:space-between;align-items:center;transition:.18s ease;
-    }
-    .nav-item:hover{background:#ffffff0a;color:#fff;transform:translateX(-3px)}
-    .nav-item.active{
-      background:linear-gradient(90deg,#6366f13d,#c084fc1f);
-      border-color:#6366f155;color:#fff;
-    }
-    .nav-arrow{transition:transform .2s ease;opacity:.65}
-    .nav-item:hover .nav-arrow,.nav-item.active .nav-arrow{transform:translateX(-3px);opacity:1}
+    .feat-on { color: var(--ok); font-weight: 800; }
+    .feat-off { color: var(--muted); font-weight: 700; }
 
-    /* Buttons & Cards */
-    .btn{
-      position:relative;overflow:hidden;padding:9px 14px;border:none;border-radius:11px;
-      font-weight:800;font-size:13px;cursor:pointer;font-family:inherit;
-      display:inline-flex;align-items:center;justify-content:center;gap:6px;
-      text-decoration:none;transition:.18s cubic-bezier(.22,1,.36,1);
+    input, textarea, select {
+      width: 100%;
+      background: #0b0b0e;
+      border: 1px solid var(--line);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 13px;
+      outline: none;
+      margin-bottom: 10px;
     }
-    .btn:hover{transform:translateY(-2px)}
-    .btn:active{transform:scale(.93)}
-    .rpl{
-      position:absolute;border-radius:50%;background:#ffffff66;
-      transform:scale(0);animation:ripple .5s linear;pointer-events:none;
-    }
-    .btn-primary{
-      background:linear-gradient(135deg,var(--primary),var(--secondary));
-      color:#fff;box-shadow:0 6px 18px #6366f12e;
-    }
-    .btn-primary:hover{box-shadow:0 8px 24px #c084fc47}
-    .btn-ghost{background:#ffffff0e;border:1px solid var(--border);color:#fff}
-    .btn-ghost:hover{background:#ffffff18;border-color:#ffffff33}
-    .btn-danger{background:#ef4444;color:#fff;box-shadow:0 6px 16px #ef44442b}
-    .btn-success{background:#10b981;color:#fff;box-shadow:0 6px 18px #10b9812e}
-    .btn-success:hover{box-shadow:0 8px 24px #10b9814a}
+    input:focus, textarea:focus, select:focus { border-color: var(--accent); }
+    .row-inline { display: flex; gap: 8px; align-items: center; }
+    .row-inline > * { margin-bottom: 0; }
 
-    .card{
-      background:var(--card);border:1px solid var(--border);border-radius:16px;
-      padding:15px;backdrop-filter:blur(12px);
-      transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease;
-      animation:cardEnter .35s ease both;
+    .chat-log {
+      max-height: 220px;
+      overflow-y: auto;
+      background: #0b0b0e;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 13px;
     }
-    .card:hover{
-      border-color:#c084fc58;
-      transform:translateY(-2px);
-      box-shadow:0 12px 28px #00000059;
-    }
-    .card.boom{animation:pulseGlow .85s ease 2;border-color:#10b981!important}
-    .stat-float{animation:softFloat 4s ease-in-out infinite}
+    .msg { padding: 8px 11px; border-radius: 10px; max-width: 90%; line-height: 1.5; }
+    .msg.u { background: rgba(239,68,68,0.18); border: 1px solid rgba(239,68,68,0.35); align-self: flex-start; }
+    .msg.b { background: #18181d; border: 1px solid var(--line); align-self: flex-end; }
 
-    input,select,textarea{
-      width:100%;padding:10px 12px;background:#0000008c;border:1px solid var(--border);
-      border-radius:11px;color:#fff;font-size:14px;font-family:inherit;margin-bottom:8px;
-      transition:border-color .18s ease,box-shadow .18s ease,background .18s ease;
+    .notif-item {
+      background: var(--card-2);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      font-size: 13px;
     }
-    input:focus,select:focus,textarea:focus{
-      outline:none;border-color:var(--secondary);background:#090914cc;
-      box-shadow:0 0 0 3px #c084fc24;
-    }
-    label{display:block;font-size:12px;font-weight:700;margin-bottom:4px;color:var(--muted)}
-    .terminal-box{
-      background:#040409;border:1px solid #6366f170;border-radius:11px;
-      padding:11px;font-family:monospace;font-size:13.5px;color:#a5b4fc;
-      text-align:center;margin-bottom:10px;transition:border-color .2s ease;
-    }
-    .terminal-box:hover{border-color:var(--secondary)}
-    .role-badge{
-      display:inline-flex;padding:2px 9px;border-radius:99px;font-size:11px;
-      font-weight:800;border:1px solid currentColor;background:#ffffff08;
-    }
-    .lock-pill{
-      display:inline-flex;padding:2px 8px;border-radius:99px;font-size:11px;
-      font-weight:800;background:#ef444424;color:#fca5a5;
-    }
-    .open-pill{
-      display:inline-flex;padding:2px 8px;border-radius:99px;font-size:11px;
-      font-weight:800;background:#10b98122;color:#34d399;
-    }
+    .notif-title { font-weight: 800; margin-bottom: 3px; }
+    .notif-body { color: var(--muted); font-size: 12px; }
 
-    /* Layout & Panels */
-    .content{padding:14px;max-width:1020px;margin:0 auto}
-    .tab-panel{display:none}
-    .tab-panel.active{display:block;animation:popIn .28s cubic-bezier(.22,1,.36,1)}
-    .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin-bottom:12px}
-    .card-value{font-size:21px;font-weight:900;transition:transform .2s ease}
-    .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(235px,1fr));gap:12px}
-    .server-card{
-      background:var(--card);border:1px solid var(--border);border-radius:12px;
-      padding:11px 13px;display:flex;justify-content:space-between;align-items:center;
-      margin-bottom:8px;transition:.2s ease;animation:cardEnter .3s ease both;
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #121216;
+      border: 1px solid var(--line);
+      color: var(--text);
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      opacity: 0;
+      pointer-events: none;
+      transition: 0.25s;
+      z-index: 999;
     }
-    .server-card:hover{border-color:#6366f170;transform:translateY(-2px)}
-    .tkt-card{
-      background:#ffffff07;border:1px solid var(--border);border-radius:11px;
-      padding:10px;margin-top:8px;animation:cardEnter .28s ease both;
-    }
-    .tkt-reply{
-      margin-top:6px;padding:8px 10px;border-radius:9px;background:#10b9811a;
-      border-right:3px solid #10b981;font-size:12px;color:#d1fae5;
-    }
-    .feat-item{
-      display:flex;justify-content:space-between;align-items:center;
-      padding:6px 4px;border-bottom:1px solid #ffffff0d;transition:background .15s ease;
-    }
-    .feat-item:hover{background:#ffffff06;border-radius:7px}
-    .feat-item:last-child{border-bottom:none}
-
-    /* Toast & Confetti */
-    .toast-stack{
-      position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
-      z-index:9999;display:flex;flex-direction:column;gap:8px;
-      width:min(92vw,410px);pointer-events:none;
-    }
-    .toast-item{
-      position:relative;overflow:hidden;background:#10101cf7;
-      border:1px solid #ffffff24;border-right:4px solid var(--success);
-      padding:11px 14px 13px;border-radius:14px;box-shadow:0 12px 28px #000c;
-      animation:toastIn .3s cubic-bezier(.22,1,.36,1);transition:.25s ease;
-    }
-    .toast-item.err{border-right-color:var(--danger)}
-    .t-title{font-weight:900;font-size:13px;color:#34d399}
-    .toast-item.err .t-title{color:#f87171}
-    .t-reason{font-size:12px;color:#cbd5e1;margin-top:2px}
-    .t-bar{
-      position:absolute;bottom:0;right:0;height:3px;background:#10b981;
-      animation:barShrink 4s linear forwards;
-    }
-    .toast-item.err .t-bar{background:#ef4444}
-    .cf{
-      position:fixed;top:-15px;width:8px;height:12px;border-radius:2px;
-      z-index:9998;pointer-events:none;animation:cfFall linear forwards;
-    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
-  <div class="topbar">
-    <div style="display:flex;align-items:center;gap:8px">
-      <button class="dots-btn" onclick="toggleMenu()" aria-label="القائمة">⋮</button>
-      <span class="live-dot" title="متصل"></span>
-      <b class="brand-title">SLAP <span style="color:var(--secondary)">AURA</span></b>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand-row">
+        <div class="logo">⚡ SLAP AURA</div>
+        <span class="role-badge" id="roleBadge">MEMBER</span>
+        <span class="user-meta" id="userMeta">جاري تحميل الحساب...</span>
+      </div>
+      <div class="actions-row">
+        <a class="btn-link hidden" id="adminBtn" href="/admin_dashboard">🛡️ لوحة الإدارة</a>
+        <button type="button" onclick="refreshMe()">🔄 تحديث</button>
+        <button type="button" class="btn-red" onclick="logout()">🚪 خروج</button>
+      </div>
     </div>
-    <div style="display:flex;align-items:center;gap:7px">
-      <span id="topName" style="font-size:12px;font-weight:800">User</span>
-      <span id="topRole" class="role-badge">Member</span>
-    </div>
-  </div>
 
-  <div class="drawer-bg" id="drawerBg" onclick="toggleMenu(false)"></div>
-  <div class="drawer" id="drawer">
-    <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:8px;border-bottom:1px solid var(--border)">
-      <b>القائمة</b>
-      <button class="dots-btn" style="width:28px;height:28px;font-size:13px" onclick="toggleMenu(false)">✕</button>
+    <div class="grid-4">
+      <div class="stat">
+        <div class="stat-label">الباقة الحالية</div>
+        <div class="stat-val" id="tierVal">FREE</div>
+        <div class="stat-sub" id="expVal">لا يوجد اشتراك نشط</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">الرصيد (USD)</div>
+        <div class="stat-val" id="balanceVal">$0.00</div>
+        <div class="stat-sub">شحن فوري عبر NOWPayments</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">النقاط</div>
+        <div class="stat-val" id="pointsVal">0</div>
+        <div class="stat-sub" id="refCodeVal">كود الدعوة: -</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">الرتبة والصلاحية</div>
+        <div class="stat-val" id="roleVal">MEMBER</div>
+        <div class="stat-sub" id="emailVal">-</div>
+      </div>
     </div>
-    <button class="nav-item active" data-tab="home" onclick="goTab('home')"><span>الرئيسية</span><span class="nav-arrow">‹</span></button>
-    <button class="nav-item" data-tab="plans" onclick="goTab('plans')"><span>الباقات</span><span class="nav-arrow">‹</span></button>
-    <button class="nav-item" data-tab="gift" onclick="goTab('gift')"><span>الشحن والهدايا</span><span class="nav-arrow">‹</span></button>
-    <button class="nav-item" data-tab="keys" onclick="goTab('keys')"><span>المفتاح واللودر</span><span class="nav-arrow">‹</span></button>
-    <button class="nav-item" data-tab="ai" onclick="goTab('ai')"><span>AI Support</span><span class="nav-arrow">‹</span></button>
-    <button class="nav-item" data-tab="points" onclick="goTab('points')"><span>النقاط</span><span class="nav-arrow">‹</span></button>
-    <button class="nav-item" data-tab="finder" onclick="goTab('finder')"><span>Finder</span><span class="nav-arrow">‹</span></button>
-    <button class="nav-item" data-tab="referral" onclick="goTab('referral')"><span>الإحالة</span><span class="nav-arrow">‹</span></button>
-    <button class="nav-item" data-tab="support" onclick="goTab('support')"><span>الدعم</span><span class="nav-arrow">‹</span></button>
-    <button class="btn btn-danger" style="margin-top:auto" onclick="logout()">خروج</button>
-  </div>
 
-  <div class="content">
-    <!-- الرئيسية -->
-    <div class="tab-panel active" id="tab-home">
-      <div class="stats">
-        <div class="card stat-float" style="animation-delay:0s">
-          <label>الرتبة</label>
-          <div class="card-value" id="s-role" style="font-size:17px">Member</div>
-        </div>
-        <div class="card stat-float" style="animation-delay:.12s">
-          <label>الباقة</label>
-          <div class="card-value" id="s-tier" style="font-size:17px">Free</div>
-        </div>
-        <div class="card stat-float" style="animation-delay:.24s">
-          <label>الرصيد</label>
-          <div class="card-value" id="s-usd" style="color:#10b981">$0.00</div>
-        </div>
-        <div class="card stat-float" style="animation-delay:.36s">
-          <label>النقاط</label>
-          <div class="card-value" id="s-points" style="color:#fbbf24">0</div>
-        </div>
-        <div class="card stat-float" style="animation-delay:.48s">
-          <label>المفتاح</label>
-          <div class="card-value" id="s-key" style="font-size:12px;font-family:monospace;color:#a5b4fc">لا</div>
-          <div id="s-exp" style="font-size:11px;color:#10b981">بلا مفتاح</div>
+    <div class="grid-2">
+      <div class="panel">
+        <h2>🔑 المفتاح الحالي و HWID</h2>
+        <div class="key-box" id="currentKeyBox">لا يوجد مفتاح نشط حالياً</div>
+        <div class="actions-row">
+          <button type="button" class="btn-red" onclick="claimFreeKey()">🎁 استلام مفتاح مجاني</button>
+          <button type="button" onclick="copyKey()">📋 نسخ المفتاح</button>
+          <button type="button" onclick="resetHwid()">♻️ فك HWID</button>
         </div>
       </div>
 
-      <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px">
-        <button class="btn btn-primary" onclick="goTab('plans')">الباقات</button>
-        <button class="btn btn-success" onclick="goTab('gift')">شحن</button>
-        <button class="btn btn-ghost" onclick="goTab('keys')">المفتاح</button>
-        <button class="btn btn-ghost" onclick="goTab('support')">الدعم</button>
-      </div>
-
-      <div class="card" style="margin-bottom:12px">
-        <h4>المميزات</h4>
-        <ul id="featuresList" style="list-style:none;font-size:12.5px;margin-top:6px"></ul>
-      </div>
-
-      <div class="card">
-        <h4>توثيق البريد</h4>
-        <div id="email-step-1" style="margin-top:8px">
-          <input type="email" id="userEmail" placeholder="البريد الإلكتروني">
-          <button class="btn btn-primary" onclick="sendVerifyCode()" style="width:100%">إرسال كود</button>
+      <div class="panel">
+        <h2>💎 النقاط والإحالة والشحن</h2>
+        <div class="actions-row" style="margin-bottom:10px;">
+          <button type="button" class="btn-red" id="dailyBtn" onclick="claimDaily()">☀️ مكافأة يومية</button>
+          <button type="button" id="redeemBtn" onclick="redeemPoints()">🎟️ استبدال مفتاح Starter</button>
         </div>
-        <div id="email-step-2" style="display:none;margin-top:8px">
-          <input type="text" id="userCode" maxlength="6" placeholder="000000" style="text-align:center">
-          <button class="btn btn-primary" onclick="verifyCode()" style="width:100%">تأكيد</button>
+        <div class="row-inline" style="margin-bottom:10px;">
+          <input type="text" id="refInput" placeholder="أدخل كود إحالة صديق..." />
+          <button type="button" onclick="applyReferral()">تطبيق</button>
         </div>
-        <div id="email-step-3" style="display:none;margin-top:8px;color:#10b981;font-weight:800">
-          موثق: <span id="verifiedEmailText"></span>
+        <div class="row-inline">
+          <input type="number" id="topupAmount" min="1" max="1000" step="0.5" placeholder="مبلغ الشحن بالدولار (مثلاً 5)" />
+          <button type="button" class="btn-red" onclick="createTopup()">💳 شحن رصيد</button>
         </div>
       </div>
     </div>
 
-    <!-- الباقات -->
-    <div class="tab-panel" id="tab-plans">
-      <div style="text-align:center;margin-bottom:12px">
-        <h3>الباقات</h3>
-        <p style="color:var(--muted)">الرصيد المتاح: <b style="color:#10b981" id="plans-usd">$0.00</b></p>
-      </div>
-      <div class="grid2" style="max-width:640px;margin:0 auto" id="plansGrid"></div>
+    <div class="panel" style="margin-bottom:18px;">
+      <h2>📦 الباقات المتاحة (Tiers)</h2>
+      <div class="tiers-grid" id="tiersContainer"></div>
     </div>
 
-    <!-- الشحن والهدايا -->
-    <div class="tab-panel" id="tab-gift">
-      <div class="card" style="margin-bottom:12px">
-        <h4>شحن رصيد ($)</h4>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0">
-          <button type="button" class="btn btn-ghost" onclick="setAmt(5)">$5</button>
-          <button type="button" class="btn btn-ghost" onclick="setAmt(10)">$10</button>
-          <button type="button" class="btn btn-ghost" onclick="setAmt(25)">$25</button>
-          <button type="button" class="btn btn-ghost" onclick="setAmt(50)">$50</button>
+    <div class="panel" style="margin-bottom:18px;">
+      <h2>✨ حالة الميزات حسب باقتك</h2>
+      <div class="features-list" id="featuresContainer"></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="panel">
+        <h2>🤖 مساعد الدعم الذكي (Gemini)</h2>
+        <div class="chat-log" id="chatLog">
+          <div class="msg b">أهلاً بك! اسألني عن الباقات، المفاتيح، HWID، أو شحن الرصيد.</div>
         </div>
-        <input type="number" id="topup-amt" min="0.5" max="10000" step="0.01" placeholder="المبلغ بالدولار">
-        <button class="btn btn-success" onclick="buyUsd()" style="width:100%">شحن</button>
+        <form class="row-inline" onsubmit="sendAiMessage(event)">
+          <input type="text" id="aiInput" placeholder="اكتب سؤالك هنا..." required />
+          <button type="submit" class="btn-red">إرسال</button>
+        </form>
       </div>
 
-      <div class="grid2">
-        <div class="card">
-          <h4>إهداء رصيد</h4>
-          <input type="email" id="gift-usd-email" placeholder="بريد المستلم" style="margin-top:8px">
-          <input type="number" id="gift-usd-amt" min="0.5" step="0.01" placeholder="المبلغ">
-          <input type="text" id="gift-usd-note" maxlength="140" placeholder="رسالة">
-          <button class="btn btn-success" onclick="sendGiftUsd()" style="width:100%">إرسال</button>
-        </div>
-        <div class="card">
-          <h4>إهداء باقة</h4>
-          <input type="email" id="gift-plan-email" placeholder="بريد المستلم" style="margin-top:8px">
-          <select id="gift-plan-tier">
-            <option value="pro">Pro ($5)</option>
-            <option value="lifetime">Lifetime ($30)</option>
-          </select>
-          <input type="text" id="gift-plan-note" maxlength="140" placeholder="رسالة">
-          <button class="btn btn-primary" onclick="sendGiftPlan()" style="width:100%">إهداء</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- المفتاح واللودر -->
-    <div class="tab-panel" id="tab-keys">
-      <div class="card" style="margin-bottom:12px">
-        <h4>المفتاح</h4>
-        <div class="terminal-box" id="keyDisplay" style="margin-top:8px">بلا مفتاح</div>
-        <p style="text-align:center;color:#10b981;margin-bottom:8px;font-weight:700" id="key-exp">بلا مفتاح</p>
-        <button class="btn btn-primary" onclick="copyKey()" style="width:100%">نسخ المفتاح</button>
-      </div>
-      <div class="card">
-        <h4>اللودر</h4>
-        <div class="terminal-box" style="font-size:12px;overflow-x:auto;margin-top:8px" id="loaderCode"></div>
-        <button class="btn btn-primary" onclick="copyLoader()" style="width:100%">نسخ اللودر</button>
-      </div>
-    </div>
-
-    <!-- AI Support -->
-    <div class="tab-panel" id="tab-ai">
-      <div class="card" style="max-width:650px;margin:0 auto">
-        <h4>AI Support</h4>
-        <div id="ai-msgs" style="height:230px;overflow-y:auto;background:#040409;border:1px solid var(--border);border-radius:11px;padding:10px;margin:8px 0;display:flex;flex-direction:column;gap:6px"></div>
-        <div style="display:flex;gap:6px">
-          <input type="text" id="ai-input" placeholder="اسأل..." style="margin:0;flex:1" onkeypress="if(event.key==='Enter')sendAI()">
-          <button class="btn btn-primary" onclick="sendAI()">إرسال</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- النقاط -->
-    <div class="tab-panel" id="tab-points">
-      <div class="card" style="text-align:center;padding:24px">
-        <p style="color:var(--muted)">النقاط</p>
-        <div style="font-size:46px;font-weight:900;color:#fbbf24;text-shadow:0 0 24px #fbbf2438" id="bigPoints">0</div>
-        <button class="btn btn-success" id="dailyBtn" onclick="claimDaily()" style="margin-top:12px">يومية</button>
-      </div>
-    </div>
-
-    <!-- Finder -->
-    <div class="tab-panel" id="tab-finder">
-      <div id="serverList">تحميل...</div>
-    </div>
-
-    <!-- الإحالة -->
-    <div class="tab-panel" id="tab-referral">
-      <div class="card">
-        <h4 id="refTitle">الإحالة</h4>
-        <div class="terminal-box" id="refCodeBox" style="margin-top:8px"></div>
-        <button class="btn btn-primary" onclick="copyRef()" style="width:100%">نسخ الكود</button>
-      </div>
-    </div>
-
-    <!-- الدعم -->
-    <div class="tab-panel" id="tab-support">
-      <div class="grid2">
-        <div class="card">
-          <h4>تذكرة دعم</h4>
-          <input type="text" id="t-userid" placeholder="Roblox ID" style="margin-top:8px">
-          <input type="email" id="t-email" placeholder="البريد">
-          <textarea id="t-msg" rows="3" placeholder="المشكلة..."></textarea>
-          <button class="btn btn-primary" onclick="submitTicket()" style="width:100%">إرسال</button>
-        </div>
-        <div class="card">
-          <h4>تذاكرك</h4>
-          <div id="myTicketsList" style="max-height:280px;overflow-y:auto"><p style="color:var(--muted);font-size:12px">تحميل...</p></div>
-        </div>
+      <div class="panel">
+        <h2>🎫 تذاكر الدعم والإشعارات</h2>
+        <form onsubmit="submitTicket(event)">
+          <input type="text" id="ticketSubject" placeholder="عنوان التذكرة..." required />
+          <textarea id="ticketMessage" rows="2" placeholder="اشرح مشكلتك أو طلبك..." required></textarea>
+          <button type="submit" class="btn-red">📩 إرسال تذكرة</button>
+        </form>
+        <div id="notifsContainer" style="margin-top:12px;"></div>
       </div>
     </div>
   </div>
 
-  <div class="toast-stack" id="toastStack"></div>
+  <div class="toast" id="toast"></div>
 
   <script>
-    const INIT = window.__INIT__ || {};
-    let userPoints = Number(INIT.points || 0);
-    let userBalance = Number(INIT.balance || 0);
-    let lastBal = userBalance;
-    let syncLock = false;
-    let refCode = INIT.referralCode || "";
-    let userEmail = INIT.email || "";
-    let lastKey = INIT.currentKey || "";
-    let lastReplyCount = -1;
+    let state = window.__INIT__ || null;
 
-    const EPV_LINKS = INIT.epvLinks || {};
-    const FEATURES_META = INIT.featuresMeta || {
-      basicAutoFarm: ["Farm", "free"],
-      speedHack: ["Speed", "pro"],
-      teleport: ["TP", "pro"],
-      noclip: ["Noclip", "pro"],
-      fly: ["Fly", "pro"],
-      esp: ["ESP", "pro"]
-    };
-    const TIERS = INIT.tiers || {
-      pro: { label: "Pro", price: 5, days: 30, color: "#6366f1", features: { basicAutoFarm: 1, speedHack: 1, teleport: 1, noclip: 1, fly: 1, esp: 1 } },
-      lifetime: { label: "Lifetime", price: 30, days: 0, color: "#c084fc", features: { basicAutoFarm: 1, speedHack: 1, teleport: 1, noclip: 1, fly: 1, esp: 1 } }
-    };
-
-    document.addEventListener("pointerdown", e => {
-      const b = e.target.closest(".btn");
-      if (!b) return;
-      const r = document.createElement("span");
-      const d = Math.max(b.clientWidth, b.clientHeight);
-      const rc = b.getBoundingClientRect();
-      r.className = "rpl";
-      r.style.width = r.style.height = d + "px";
-      r.style.left = (e.clientX - rc.left - d / 2) + "px";
-      r.style.top = (e.clientY - rc.top - d / 2) + "px";
-      b.appendChild(r);
-      setTimeout(() => r.remove(), 500);
-    });
-
-    function toast(t, r = "ok", tp) {
-      let rs = "", ty = "ok";
-      if (tp !== undefined) { rs = r; ty = tp; }
-      else if (r === "ok" || r === "err") ty = r;
-      else rs = r;
-      const st = document.getElementById("toastStack");
-      if (!st) return;
-      const el = document.createElement("div");
-      el.className = "toast-item " + ty;
-      el.innerHTML = `<div class="t-title">${t}</div>${rs ? `<div class="t-reason">${rs}</div>` : ""}<div class="t-bar"></div>`;
-      st.appendChild(el);
-      while (st.children.length > 3) st.firstChild.remove();
-      setTimeout(() => { el.style.opacity = "0"; setTimeout(() => el.remove(), 250); }, 4000);
+    function showToast(msg) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.classList.add("show");
+      setTimeout(() => t.classList.remove("show"), 3200);
     }
 
-    function boomFx() {
-      const cols = ["#10b981", "#c084fc", "#6366f1", "#fbbf24"];
-      for (let i = 0; i < 42; i++) {
-        const c = document.createElement("div");
-        c.className = "cf";
-        c.style.left = Math.random() * 100 + "vw";
-        c.style.background = cols[i % 4];
-        c.style.animationDuration = (1.1 + Math.random() * 1.3) + "s";
-        document.body.appendChild(c);
-        setTimeout(() => c.remove(), 2600);
-      }
-      document.querySelectorAll(".card").forEach((x, i) => {
-        if (i < 5) { x.classList.remove("boom"); void x.offsetWidth; x.classList.add("boom"); }
+    async function api(url, opts = {}) {
+      const res = await fetch(url, {
+        credentials: "include",
+        headers: { "Content-Type": "application/json", ...(opts.headers || {}) },
+        ...opts,
       });
-    }
-
-    function bumpStat(id) {
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.style.transform = "scale(1.14)";
-      setTimeout(() => { el.style.transform = "scale(1)"; }, 220);
-    }
-
-    const sRole = document.getElementById("s-role");
-    function userEmailInput() { return document.getElementById("userEmail"); }
-
-    function initStaticUI() {
-      topName.textContent = INIT.displayName || INIT.email || "User";
-      topRole.textContent = INIT.roleLabel || "Member";
-      topRole.style.color = INIT.roleColor || "#8b92a5";
-      sRole.textContent = INIT.roleLabel || "Member";
-      sRole.style.color = INIT.roleColor || "#8b92a5";
-      userEmailInput().value = userEmail;
-      tEmail.value = userEmail;
-      refCodeBox.textContent = refCode;
-      refTitle.textContent = `الإحالة (+${INIT.referralPoints || 200})`;
-      dailyBtn.textContent = `يومية (+${INIT.dailyPoints || 50})`;
-      loaderCode.textContent = `loadstring(game:HttpGet("${INIT.keyUrl || ""}"))()`;
-      if (INIT.emailVerified) {
-        document.getElementById("email-step-1").style.display = "none";
-        document.getElementById("email-step-3").style.display = "block";
-        verifiedEmailText.textContent = userEmail;
+      const data = await res.json().catch(() => ({}));
+      if (res.status === 401 && url !== "/api/me") {
+        window.location.replace("/login");
       }
-      renderFeatures(INIT.features || {});
-      renderPlans(INIT.tier || "free");
-      updatePts();
-      updateUsd();
+      return { res, data };
     }
 
-    function renderFeatures(cf) {
-      featuresList.innerHTML = Object.keys(FEATURES_META).map(k =>
-        `<li class="feat-item"><span>${FEATURES_META[k][0]}</span>${cf[k] ? '<span class="open-pill">مفتوح</span>' : '<span class="lock-pill">Locked</span>'}</li>`
-      ).join("");
-    }
-
-    function renderPlans(ut) {
-      plansGrid.innerHTML = ["pro", "lifetime"].map((tk, idx) => {
-        const c = TIERS[tk];
-        if (!c) return "";
-        const cur = ut === tk;
-        const featsHtml = Object.keys(FEATURES_META).map(k =>
-          `<li class="feat-item" style="padding:4px 0"><span>${FEATURES_META[k][0]}</span><span style="color:#34d399;font-size:11px">مفتوح</span></li>`
-        ).join("");
-        return `<div class="card" style="text-align:center;animation-delay:${idx * 0.08}s">
-          <h3>${c.label}</h3>
-          <div style="font-size:27px;font-weight:900;color:${c.color};margin:4px 0">$${c.price}</div>
-          <p style="color:var(--muted);margin-bottom:8px;font-size:12px">${c.days === 0 ? "دائم" : c.days + " يوم"}</p>
-          <ul style="list-style:none;margin-bottom:12px;text-align:right;font-size:12px">${featsHtml}</ul>
-          ${cur
-            ? '<button class="btn btn-ghost" style="width:100%;opacity:.65" disabled>الباقة الحالية</button>'
-            : `<button class="btn btn-success" onclick="buyFromBalance('${tk}')" style="width:100%;margin-bottom:6px">شراء بالرصيد ($${c.price})</button><button class="btn btn-primary" onclick="buyPlan('${tk}')" style="width:100%">دفع مباشر</button>`}
-        </div>`;
-      }).join("");
-    }
-
-    function setAmt(v) {
-      document.getElementById("topup-amt").value = v;
-      toast("$" + v, "ok");
-    }
-
-    function toggleMenu(f) {
-      const d = document.getElementById("drawer"), bg = document.getElementById("drawerBg");
-      const op = f !== undefined ? f : !d.classList.contains("open");
-      d.classList.toggle("open", op);
-      bg.classList.toggle("open", op);
-    }
-
-    function goTab(n) {
-      document.querySelectorAll(".nav-item").forEach(x => x.classList.toggle("active", x.dataset.tab === n));
-      document.querySelectorAll(".tab-panel").forEach(p => {
-        const isTarget = p.id === "tab-" + n;
-        p.classList.toggle("active", isTarget);
-        if (isTarget) { p.style.animation = "none"; void p.offsetWidth; p.style.animation = ""; }
-      });
-      toggleMenu(false);
-      if (n === "finder") loadFinder();
-      if (n === "support") loadMyTickets();
-    }
-
-    function renderTickets(list) {
-      const box = document.getElementById("myTicketsList");
-      if (!box) return;
-      if (!list || !list.length) {
-        box.innerHTML = '<p style="color:var(--muted);font-size:12px;margin-top:8px">لا توجد تذاكر حالياً.</p>';
+    function renderAll(d) {
+      if (!d || d.authenticated === false) {
+        window.location.replace("/login");
         return;
       }
-      box.innerHTML = list.map((t, i) =>
-        `<div class="tkt-card" style="animation-delay:${i * 0.04}s"><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted)"><span>#${t.userId}</span><span>${t.reply ? "تم الرد" : "انتظار"}</span></div><div style="font-size:12px;margin-top:3px">${t.msg}</div>${t.reply ? `<div class="tkt-reply"><b>الرد:</b> ${t.reply}</div>` : ""}</div>`
-      ).join("");
+      state = d;
+
+      const roleLabel = d.roleLabel || (d.role || "member").toUpperCase();
+      const roleColor = d.roleColor || "#ef4444";
+      const badge = document.getElementById("roleBadge");
+      badge.textContent = roleLabel;
+      badge.style.color = roleColor;
+      badge.style.borderColor = roleColor;
+
+      document.getElementById("roleVal").textContent = roleLabel;
+      document.getElementById("roleVal").style.color = roleColor;
+      document.getElementById("userMeta").textContent = `${d.displayName || "User"} • ${d.email || ""}`;
+      document.getElementById("emailVal").textContent = d.email || "-";
+
+      const isStaff = d.role === "owner" || d.role === "admin" || d.isOwner || d.isAdmin;
+      document.getElementById("adminBtn").classList.toggle("hidden", !isStaff);
+
+      const tierKey = d.tier || "free";
+      const tierCfg = (d.tiers && d.tiers[tierKey]) || { name: tierKey.toUpperCase() };
+      document.getElementById("tierVal").textContent = tierCfg.name || tierKey.toUpperCase();
+      document.getElementById("expVal").textContent = d.exp
+        ? "ينتهي في: " + new Date(d.exp).toLocaleDateString("ar-EG")
+        : "لا يوجد اشتراك نشط";
+
+      document.getElementById("balanceVal").textContent = "$" + Number(d.balance || 0).toFixed(2);
+      document.getElementById("pointsVal").textContent = d.points || 0;
+      document.getElementById("refCodeVal").textContent = "كود الدعوة: " + (d.referralCode || "-");
+      document.getElementById("currentKeyBox").textContent = d.currentKey || "لا يوجد مفتاح نشط حالياً";
+
+      document.getElementById("dailyBtn").textContent = `☀️ مكافأة يومية (+${d.dailyPoints || 15})`;
+      document.getElementById("redeemBtn").textContent = `🎟️ استبدال Starter (${d.redeemCost || 100} نقطة)`;
+
+      const tiersEl = document.getElementById("tiersContainer");
+      const order = ["free", "starter", "pro", "elite"];
+      const tiersObj = d.tiers || {};
+      tiersEl.innerHTML = order
+        .filter((k) => tiersObj[k])
+        .map((k) => {
+          const t = tiersObj[k];
+          const isCurrent = tierKey === k;
+          const isFree = Number(t.price || 0) === 0;
+          return `
+            <div class="tier-card ${isCurrent ? "current" : ""}">
+              <div>
+                <div class="tier-head">
+                  <span class="tier-name">${t.name}</span>
+                  <span class="tier-price">${isFree ? "مجاناً" : "$" + Number(t.price).toFixed(2)}</span>
+                </div>
+                <div class="tier-desc" style="margin-top:6px;">
+                  ${t.description || `المدة: ${t.days} يوم • الأجهزة: ${t.maxDevices || 1}`}
+                </div>
+              </div>
+              <div>
+                ${
+                  isFree
+                    ? `<button type="button" style="width:100%;" onclick="claimFreeKey()">${isCurrent ? "تجديد المفتاح المجاني" : "استلام المجاني"}</button>`
+                    : `<button type="button" class="btn-red" style="width:100%;" onclick="buyTier('${k}')">${isCurrent ? "تجديد الباقة" : "شراء بالرصيد"}</button>`
+                }
+              </div>
+            </div>
+          `;
+        })
+        .join("");
+
+      const featsEl = document.getElementById("featuresContainer");
+      const meta = d.featuresMeta || {};
+      const feats = d.features || {};
+      featsEl.innerHTML = Object.entries(meta)
+        .map(([key, item]) => {
+          const active = !!feats[key];
+          return `
+            <div class="feat-item">
+              <span>${item.icon || "•"} ${item.label}</span>
+              <span class="${active ? "feat-on" : "feat-off"}">${active ? "مفعّل" : item.minTier.toUpperCase()}</span>
+            </div>
+          `;
+        })
+        .join("");
+
+      const notifsEl = document.getElementById("notifsContainer");
+      const notifs = d.notifications || [];
+      notifsEl.innerHTML = notifs.length
+        ? notifs
+            .slice(0, 5)
+            .map(
+              (n) => `
+                <div class="notif-item">
+                  <div class="notif-title">${n.title}</div>
+                  <div class="notif-body">${n.body}</div>
+                </div>
+              `
+            )
+            .join("")
+        : `<div class="notif-body">لا توجد إشعارات حديثة.</div>`;
     }
 
-    async function loadMyTickets() {
-      try {
-        const d = await (await fetch("/api/my-tickets", { cache: "no-store" })).json();
-        if (d.success) renderTickets(d.tickets);
-      } catch {}
+    async function refreshMe() {
+      const { data } = await api("/api/me");
+      renderAll(data);
     }
 
-    async function syncMe() {
-      if (syncLock) return;
-      try {
-        const d = await (await fetch("/api/me", { cache: "no-store" })).json();
-        if (!d.success || syncLock) return;
-        const ptsChanged = (d.points || 0) !== userPoints;
-        userPoints = d.points || 0;
-        const nb = Number(d.balance || 0);
-        if (nb > lastBal) {
-          toast("+$" + (nb - lastBal).toFixed(2), "$" + nb.toFixed(2), "ok");
-          boomFx();
-        }
-        const balChanged = nb !== userBalance;
-        userBalance = nb;
-        lastBal = nb;
-        updatePts();
-        updateUsd();
-        if (ptsChanged) { bumpStat("s-points"); bumpStat("bigPoints"); }
-        if (balChanged) { bumpStat("s-usd"); bumpStat("plans-usd"); }
-
-        const k = d.currentKey || "لا", kd = d.currentKey || "بلا مفتاح";
-        if (d.currentKey && d.currentKey !== lastKey) {
-          lastKey = d.currentKey;
-          toast("مفتاح جديد", d.currentKey, "ok");
-          boomFx();
-        }
-        if (Array.isArray(d.tickets)) {
-          const rc1 = d.tickets.filter(x => x.reply).length;
-          if (lastReplyCount !== -1 && rc1 > lastReplyCount) {
-            const nr = d.tickets.find(x => x.reply);
-            toast("رد الدعم", nr ? nr.reply : "تم الرد", "ok");
-            boomFx();
-          }
-          lastReplyCount = rc1;
-          renderTickets(d.tickets);
-        }
-        document.getElementById("s-key").textContent = k;
-        keyDisplay.textContent = kd;
-        document.getElementById("s-exp").textContent = d.exp;
-        document.getElementById("key-exp").textContent = d.exp;
-        const st = document.getElementById("s-tier");
-        if (st) { st.textContent = d.tierLabel || "Free"; st.style.color = d.tierColor || "#8b92a5"; }
-        if (d.features) renderFeatures(d.features);
-        if (d.tier) renderPlans(d.tier);
-      } catch {}
+    async function claimFreeKey() {
+      const { res, data } = await api("/api/key/claim-free", { method: "POST" });
+      showToast(data.message || (res.ok ? "تم إصدار المفتاح المجاني" : "تعذر إصدار المفتاح"));
+      if (res.ok) refreshMe();
     }
 
-    async function buyUsd() {
-      const amt = parseFloat(document.getElementById("topup-amt").value);
-      if (!amt || amt < 0.5 || amt > 10000) return toast("مبلغ خاطئ", "err");
-      boomFx();
-      toast("تجهيز الفاتورة...", "$" + amt.toFixed(2), "ok");
-      const d = await (await fetch("/api/topup/usd", {
+    async function buyTier(tier) {
+      const { res, data } = await api("/api/balance/buy-tier", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: amt })
-      })).json();
-      if (d.success && d.payUrl) {
-        toast("جاري التحويل للدفع", "ok");
-        setTimeout(() => location.href = d.payUrl, 350);
-      } else toast("فشل", d.message || "خطأ", "err");
-    }
-
-    function buyPlan(p) {
-      let u = EPV_LINKS[p];
-      if (!u) return toast("غير متوفر", "err");
-      boomFx();
-      toast("جاري التحويل للدفع", p.toUpperCase(), "ok");
-      if (userEmail) u += (u.includes("?") ? "&" : "?") + "email=" + encodeURIComponent(userEmail);
-      setTimeout(() => location.href = u, 350);
-    }
-
-    async function buyFromBalance(tier) {
-      if (syncLock) return;
-      syncLock = true;
-      toast("جاري التفعيل...", tier.toUpperCase(), "ok");
-      try {
-        const d = await (await fetch("/api/buy-balance", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ tier })
-        })).json();
-        if (d.success) {
-          let nb = Number(d.balance);
-          if (!Number.isFinite(nb)) nb = Math.max(0, Number((userBalance - Number(d.charged || 0)).toFixed(2)));
-          userBalance = nb; lastBal = nb; updateUsd();
-          lastKey = d.key || "";
-          document.getElementById("s-key").textContent = d.key || "لا";
-          keyDisplay.textContent = d.key || "بلا مفتاح";
-          boomFx();
-          toast("تم الشراء", d.key || "", "ok");
-        } else toast("فشل", d.message || "رصيد غير كافٍ", "err");
-      } finally {
-        setTimeout(() => { syncLock = false; }, 3000);
-      }
-    }
-
-    async function sendGiftUsd() {
-      if (syncLock) return;
-      const em = document.getElementById("gift-usd-email").value.trim();
-      const amt = parseFloat(document.getElementById("gift-usd-amt").value);
-      const nt = document.getElementById("gift-usd-note").value.trim();
-      if (!em || !amt || amt <= 0) return toast("ناقص", "err");
-      if (amt > userBalance) return toast("رصيد غير كافٍ", "err");
-      syncLock = true;
-      try {
-        const d = await (await fetch("/api/gift/usd", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: em, amount: amt, note: nt })
-        })).json();
-        if (d.success) {
-          let nb = Number(d.balance);
-          if (!Number.isFinite(nb)) nb = Math.max(0, Number((userBalance - amt).toFixed(2)));
-          userBalance = nb; lastBal = nb; updateUsd();
-          document.getElementById("gift-usd-amt").value = "";
-          document.getElementById("gift-usd-note").value = "";
-          boomFx();
-          toast("تم الإرسال", "$" + amt.toFixed(2) + " -> " + em, "ok");
-        } else toast("فشل", d.message || "خطأ", "err");
-      } finally {
-        setTimeout(() => { syncLock = false; }, 3000);
-      }
-    }
-
-    async function sendGiftPlan() {
-      const em = document.getElementById("gift-plan-email").value.trim();
-      const tr = document.getElementById("gift-plan-tier").value;
-      const nt = document.getElementById("gift-plan-note").value.trim();
-      if (!em) return toast("بريد مطلوب", "err");
-      const d = await (await fetch("/api/gift/plan", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: em, tier: tr, note: nt })
-      })).json();
-      if (d.success && d.payUrl) {
-        boomFx();
-        toast("جاري التحويل للدفع", tr.toUpperCase(), "ok");
-        setTimeout(() => location.href = d.payUrl, 350);
-      } else toast("خطأ", d.message || "غير مسجل", "err");
+        body: JSON.stringify({ tier }),
+      });
+      showToast(data.message || (res.ok ? "تم شراء الباقة بنجاح" : "تعذر الشراء"));
+      if (res.ok) refreshMe();
     }
 
     function copyKey() {
-      const k = keyDisplay.textContent.trim();
-      if (k === "بلا مفتاح") return toast("بلا مفتاح", "err");
-      navigator.clipboard.writeText(k);
-      toast("تم نسخ المفتاح", "ok");
-    }
-    function copyLoader() { navigator.clipboard.writeText(loaderCode.textContent); toast("تم نسخ اللودر", "ok"); }
-    function copyRef() { navigator.clipboard.writeText(refCode); toast("تم نسخ الكود", "ok"); }
-
-    async function sendVerifyCode() {
-      const e = userEmailInput().value.trim();
-      if (!e) return toast("أدخل البريد", "err");
-      const d = await (await fetch("/send_code?email=" + encodeURIComponent(e))).json();
-      if (d.success) {
-        document.getElementById("email-step-1").style.display = "none";
-        document.getElementById("email-step-2").style.display = "block";
-        toast("تم إرسال الكود", "ok");
-      } else toast("فشل", d.message || "خطأ", "err");
+      const k = state?.currentKey || "";
+      if (!k) return showToast("لا يوجد مفتاح لنسخه");
+      navigator.clipboard?.writeText(k).catch(() => {});
+      showToast("تم نسخ المفتاح");
     }
 
-    async function verifyCode() {
-      const c = userCode.value.trim();
-      if (c.length !== 6) return toast("أدخل 6 أرقام", "err");
-      const d = await (await fetch("/verify_code?code=" + c)).json();
-      if (d.success) {
-        userEmail = userEmailInput().value.trim();
-        verifiedEmailText.textContent = userEmail;
-        document.getElementById("email-step-2").style.display = "none";
-        document.getElementById("email-step-3").style.display = "block";
-        boomFx();
-        toast("تم توثيق البريد", "ok");
-      } else toast("خطأ", d.message || "خطأ", "err");
+    async function resetHwid() {
+      const { res, data } = await api("/api/key/reset-hwid", { method: "POST" });
+      showToast(data.message || (res.ok ? "تم فك HWID" : "تعذر فك HWID"));
+      if (res.ok) refreshMe();
     }
 
     async function claimDaily() {
-      const d = await (await fetch("/api/claim-daily", { method: "POST" })).json();
-      if (d.success) {
-        userPoints = d.points;
-        updatePts();
-        bumpStat("s-points");
-        bumpStat("bigPoints");
-        boomFx();
-        toast("+" + (INIT.dailyPoints || 50), "ok");
-      } else toast("غداً", d.message || "عد غداً", "err");
+      const { res, data } = await api("/api/points/daily", { method: "POST" });
+      showToast(data.message || (res.ok ? `تمت إضافة +${data.added} نقطة` : "تعذر استلام المكافأة"));
+      if (res.ok) refreshMe();
     }
 
-    function updatePts() {
-      ["s-points", "bigPoints"].forEach(i => { const e = document.getElementById(i); if (e) e.textContent = userPoints; });
-    }
-    function updateUsd() {
-      const f = "$" + Number(userBalance || 0).toFixed(2);
-      ["s-usd", "plans-usd"].forEach(i => { const e = document.getElementById(i); if (e) e.textContent = f; });
+    async function redeemPoints() {
+      const { res, data } = await api("/api/points/redeem", { method: "POST" });
+      showToast(data.message || (res.ok ? "تم استبدال النقاط بمفتاح Starter" : "تعذر الاستبدال"));
+      if (res.ok) refreshMe();
     }
 
-    async function loadFinder() {
-      const d = await (await fetch("/api/finder/servers")).json();
-      if (!d.success || !d.servers.length) {
-        serverList.innerHTML = '<p style="text-align:center;color:var(--muted)">لا توجد سيرفرات متاحة حالياً.</p>';
-        return;
+    async function applyReferral() {
+      const code = document.getElementById("refInput").value.trim();
+      const { res, data } = await api("/api/referral/apply", {
+        method: "POST",
+        body: JSON.stringify({ code }),
+      });
+      showToast(data.message || (res.ok ? "تم تطبيق كود الإحالة" : "تعذر تطبيق الكود"));
+      if (res.ok) {
+        document.getElementById("refInput").value = "";
+        refreshMe();
       }
-      serverList.innerHTML = d.servers.map((s, idx) =>
-        `<div class="server-card" style="animation-delay:${idx * 0.04}s"><div><b>#${s.jobId.slice(0, 8)}</b> <span style="color:var(--muted);font-size:12px">• ${s.players}/${s.maxPlayers} لاعب</span></div><button class="btn btn-primary" onclick="navigator.clipboard.writeText('${s.jobId}');toast('تم نسخ JobId','ok')">نسخ</button></div>`
-      ).join("");
     }
 
-    async function submitTicket() {
-      const u = document.getElementById("t-userid").value.trim();
-      const e = document.getElementById("t-email").value.trim();
-      const m = document.getElementById("t-msg").value.trim();
-      if (!u || !e || !m) return toast("أكمل الحقول", "err");
-      const d = await (await fetch("/ticket?userid=" + encodeURIComponent(u) + "&email=" + encodeURIComponent(e) + "&msg=" + encodeURIComponent(m))).json();
-      if (d.success) {
-        document.getElementById("t-msg").value = "";
-        boomFx();
-        toast("تم إرسال التذكرة", "ok");
-        loadMyTickets();
-      } else toast("فشل", d.message || "خطأ", "err");
+    async function createTopup() {
+      const amount = Number(document.getElementById("topupAmount").value || 0);
+      const { res, data } = await api("/api/payments/create", {
+        method: "POST",
+        body: JSON.stringify({ amount }),
+      });
+      if (!res.ok || !data.invoiceUrl) {
+        return showToast(data.message || "تعذر إنشاء فاتورة الشحن");
+      }
+      showToast("جاري فتح صفحة الدفع...");
+      window.location.href = data.invoiceUrl;
     }
 
-    async function sendAI() {
-      const inp = document.getElementById("ai-input"), txt = inp.value.trim();
-      if (!txt) return;
+    async function sendAiMessage(e) {
+      e.preventDefault();
+      const inp = document.getElementById("aiInput");
+      const text = inp.value.trim();
+      if (!text) return;
+      const log = document.getElementById("chatLog");
+      log.innerHTML += `<div class="msg u">${text}</div>`;
       inp.value = "";
-      const msgs = document.getElementById("ai-msgs");
-      const escH = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-      msgs.innerHTML += `<div style="animation:cardEnter .2s ease"><b>أنت:</b> ${escH(txt)}</div>`;
-      const ld = document.createElement("div");
-      ld.textContent = "...";
-      msgs.appendChild(ld);
-      msgs.scrollTop = msgs.scrollHeight;
-      try {
-        const res = await fetch("/api/ai-chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: txt })
-        });
-        const d = await res.json();
-        ld.innerHTML = `<b>AI:</b> ${escH(d.reply || "خطأ")}`;
-      } catch {
-        ld.textContent = "خطأ";
+      log.scrollTop = log.scrollHeight;
+
+      const { data } = await api("/api/ai/chat", {
+        method: "POST",
+        body: JSON.stringify({ message: text }),
+      });
+      log.innerHTML += `<div class="msg b">${data.reply || data.message || "حدث خطأ"}</div>`;
+      log.scrollTop = log.scrollHeight;
+    }
+
+    async function submitTicket(e) {
+      e.preventDefault();
+      const subject = document.getElementById("ticketSubject").value.trim();
+      const message = document.getElementById("ticketMessage").value.trim();
+      const { res, data } = await api("/api/support/ticket", {
+        method: "POST",
+        body: JSON.stringify({ subject, message }),
+      });
+      showToast(data.message || (res.ok ? "تم إرسال التذكرة بنجاح" : "تعذر إرسال التذكرة"));
+      if (res.ok) {
+        document.getElementById("ticketSubject").value = "";
+        document.getElementById("ticketMessage").value = "";
       }
-      msgs.scrollTop = msgs.scrollHeight;
     }
 
     async function logout() {
-      toast("جاري الخروج...", "ok");
-      await fetch("/api/logout", { method: "POST" });
-      location.href = "/";
+      await api("/api/auth/logout", { method: "POST" });
+      window.location.replace("/login");
     }
 
-    initStaticUI();
-    syncMe();
-    setInterval(syncMe, 5000);
+    if (state && state.authenticated) {
+      renderAll(state);
+      refreshMe();
+    } else {
+      refreshMe();
+    }
   </script>
 </body>
 </html>
