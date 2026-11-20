@@ -3,74 +3,243 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Admin</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap" rel="stylesheet">
+  <title>SLAP AURA - Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&display=swap" rel="stylesheet">
   <style>
-    {{PC}}
-    .login-overlay{position:fixed;inset:0;background:#050508f2;display:flex;align-items:center;justify-content:center;z-index:1000}
-    .login-box{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:28px;max-width:370px;width:100%;text-align:center}
-    .topbar{display:flex;justify-content:space-between;align-items:center;padding:12px 22px;border-bottom:1px solid var(--border);background:#050508d1;position:sticky;top:0;z-index:100}
-    .logo{font-size:18px;font-weight:900}
-    .logo span{background:linear-gradient(135deg,#818cf8,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-    .tabs-bar{display:flex;gap:6px;padding:10px 22px;border-bottom:1px solid var(--border);overflow-x:auto}
-    .tab{flex-shrink:0;padding:8px 14px;border-radius:10px;background:transparent;border:none;color:var(--muted);font-weight:700;cursor:pointer;font-size:12px}
-    .tab.active{background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff}
-    .content{padding:20px 22px;max-width:1120px;margin:0 auto}
+    :root{
+      --bg:#050509;
+      --card:#12121cc7;
+      --border:#ffffff1c;
+      --text:#ffffff;
+      --muted:#949cb0;
+      --primary:#6366f1;
+      --secondary:#c084fc;
+      --success:#10b981;
+      --danger:#ef4444;
+      --warn:#fbbf24;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;font-family:'Cairo',sans-serif}
+    body{
+      background:var(--bg);
+      color:var(--text);
+      min-height:100vh;
+      background-image:
+        radial-gradient(circle at 12% 18%,#6366f12b,transparent 35%),
+        radial-gradient(circle at 88% 82%,#c084fc2b,transparent 35%),
+        radial-gradient(circle at 50% 50%,#ef44440a,transparent 55%);
+      background-attachment:fixed;
+      overflow-x:hidden;
+    }
+
+    @keyframes popIn{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
+    @keyframes cardEnter{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+    @keyframes pulseGlow{0%,100%{box-shadow:0 0 0 0 #10b98100}50%{box-shadow:0 0 26px 6px #10b98188}}
+    @keyframes softFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+    @keyframes livePulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.35);opacity:.55}}
+    @keyframes ripple{to{transform:scale(4);opacity:0}}
+    @keyframes cfFall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(105vh) rotate(720deg);opacity:0}}
+    @keyframes toastIn{from{opacity:0;transform:translateY(26px) scale(.96)}to{opacity:1;transform:none}}
+    @keyframes barShrink{from{width:100%}to{width:0}}
+
+    .login-overlay{
+      position:fixed;inset:0;background:#050509f7;backdrop-filter:blur(8px);
+      display:flex;align-items:center;justify-content:center;z-index:1000;padding:16px;
+    }
+    .login-box{
+      background:var(--card);border:1px solid #c084fc4d;border-radius:18px;
+      padding:24px;max-width:350px;width:100%;text-align:center;
+      animation:popIn .32s cubic-bezier(.22,1,.36,1);box-shadow:0 18px 45px #000a;
+    }
+
+    .topbar{
+      display:flex;justify-content:space-between;align-items:center;
+      padding:11px 16px;border-bottom:1px solid var(--border);
+      position:sticky;top:0;background:#07070ee8;backdrop-filter:blur(12px);
+      z-index:100;transition:border-color .25s;
+    }
+    .topbar:hover{border-bottom-color:#c084fc38}
+    .live-dot{
+      width:8px;height:8px;border-radius:50%;background:var(--danger);
+      box-shadow:0 0 8px var(--danger);animation:livePulse 2s infinite ease-in-out;
+      display:inline-block;
+    }
+    .dots-btn{
+      width:36px;height:36px;border-radius:10px;background:#ffffff10;
+      border:1px solid var(--border);color:#fff;font-size:19px;font-weight:900;
+      cursor:pointer;display:flex;align-items:center;justify-content:center;
+      transition:.18s ease;
+    }
+    .dots-btn:hover{background:#ffffff1e;border-color:#c084fc60;transform:scale(1.05)}
+    .dots-btn:active{transform:scale(.92)}
+
+    .drawer-bg{
+      position:fixed;inset:0;background:#000a;backdrop-filter:blur(2px);
+      z-index:200;opacity:0;pointer-events:none;transition:.22s ease;
+    }
+    .drawer-bg.open{opacity:1;pointer-events:auto}
+    .drawer{
+      position:fixed;top:0;right:0;bottom:0;width:255px;
+      background:#0d0d17fa;border-left:1px solid var(--border);
+      padding:14px 12px;z-index:201;transform:translateX(100%);
+      transition:.26s cubic-bezier(.22,1,.36,1);display:flex;flex-direction:column;gap:5px;
+    }
+    .drawer.open{transform:translateX(0)}
+    .nav-item{
+      width:100%;text-align:right;padding:10px 12px;border-radius:11px;
+      background:transparent;border:1px solid transparent;color:var(--muted);
+      font-weight:800;font-size:13px;cursor:pointer;display:flex;
+      justify-content:space-between;align-items:center;transition:.18s ease;
+    }
+    .nav-item:hover{background:#ffffff0a;color:#fff;transform:translateX(-3px)}
+    .nav-item.active{
+      background:linear-gradient(90deg,#6366f13d,#c084fc1f);
+      border-color:#6366f155;color:#fff;
+    }
+    .nav-arrow{transition:transform .2s ease;opacity:.65}
+    .nav-item:hover .nav-arrow,.nav-item.active .nav-arrow{transform:translateX(-3px);opacity:1}
+
+    .btn{
+      position:relative;overflow:hidden;padding:9px 14px;border:none;border-radius:11px;
+      font-weight:800;font-size:13px;cursor:pointer;font-family:inherit;
+      display:inline-flex;align-items:center;justify-content:center;gap:6px;
+      text-decoration:none;transition:.18s cubic-bezier(.22,1,.36,1);
+    }
+    .btn:hover{transform:translateY(-2px)}
+    .btn:active{transform:scale(.93)}
+    .rpl{
+      position:absolute;border-radius:50%;background:#ffffff66;
+      transform:scale(0);animation:ripple .5s linear;pointer-events:none;
+    }
+    .btn-primary{background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;box-shadow:0 6px 18px #6366f12e}
+    .btn-primary:hover{box-shadow:0 8px 24px #c084fc47}
+    .btn-ghost{background:#ffffff0e;border:1px solid var(--border);color:#fff}
+    .btn-ghost:hover{background:#ffffff18;border-color:#ffffff33}
+    .btn-danger{background:#ef4444;color:#fff;box-shadow:0 6px 16px #ef44442b}
+    .btn-success{background:#10b981;color:#fff;box-shadow:0 6px 18px #10b9812e}
+    .btn-sm{padding:6px 10px;font-size:11.5px;border-radius:9px;margin:2px}
+
+    .card{
+      background:var(--card);border:1px solid var(--border);border-radius:16px;
+      padding:15px;backdrop-filter:blur(12px);
+      transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease;
+      animation:cardEnter .35s ease both;
+    }
+    .card:hover{border-color:#c084fc58;transform:translateY(-2px);box-shadow:0 12px 28px #00000059}
+    .card.boom,.stat.boom{animation:pulseGlow .85s ease 2;border-color:#10b981!important}
+    .stat-float{animation:softFloat 4s ease-in-out infinite}
+
+    input,select,textarea{
+      width:100%;padding:10px 12px;background:#0000008c;border:1px solid var(--border);
+      border-radius:11px;color:#fff;font-size:14px;font-family:inherit;margin-bottom:8px;
+      transition:border-color .18s ease,box-shadow .18s ease,background .18s ease;
+    }
+    input:focus,select:focus,textarea:focus{
+      outline:none;border-color:var(--secondary);background:#090914cc;
+      box-shadow:0 0 0 3px #c084fc24;
+    }
+    label{display:block;font-size:12px;font-weight:700;margin-bottom:4px;color:var(--muted)}
+
+    .content{padding:14px 16px;max-width:1080px;margin:0 auto}
     .tab-panel{display:none}
-    .tab-panel.active{display:block}
-    .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:16px}
-    .stat{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px}
-    .stat-val{font-size:24px;font-weight:900}
-    .table-box{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow-x:auto;margin-top:12px}
+    .tab-panel.active{display:block;animation:popIn .28s cubic-bezier(.22,1,.36,1)}
+    .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:12px}
+    .stat{
+      background:var(--card);border:1px solid var(--border);border-radius:14px;
+      padding:14px;backdrop-filter:blur(12px);transition:.22s ease;
+    }
+    .stat:hover{border-color:#c084fc55;transform:translateY(-2px)}
+    .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+
+    .table-box{
+      background:var(--card);border:1px solid var(--border);border-radius:14px;
+      overflow-x:auto;margin-top:10px;animation:cardEnter .35s ease both;
+    }
     table{width:100%;border-collapse:collapse;text-align:right}
-    th{background:#ffffff09;padding:10px;color:var(--muted);font-size:12px}
-    td{padding:10px;border-bottom:1px solid #ffffff09;font-size:13px}
-    .btn-sm{padding:6px 10px;font-size:11px;border-radius:8px;margin:2px}
-    .rbox{display:none;margin-top:8px;padding:10px;background:#0009;border:1px solid var(--border);border-radius:10px}
+    th{background:#ffffff0a;padding:9px 10px;color:var(--muted);font-size:12px}
+    td{padding:9px 10px;border-bottom:1px solid #ffffff0d;font-size:12px;transition:background .15s ease}
+    tbody tr:hover td{background:#ffffff06}
+    .rbox{display:none;margin-top:6px;animation:popIn .22s ease}
     .rbox.open{display:block}
+
+    .toast-stack{
+      position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
+      z-index:9999;display:flex;flex-direction:column;gap:8px;
+      width:min(92vw,410px);pointer-events:none;
+    }
+    .toast-item{
+      position:relative;overflow:hidden;background:#10101cf7;
+      border:1px solid #ffffff24;border-right:4px solid var(--success);
+      padding:11px 14px 13px;border-radius:14px;box-shadow:0 12px 28px #000c;
+      animation:toastIn .3s cubic-bezier(.22,1,.36,1);transition:.25s ease;
+    }
+    .toast-item.err{border-right-color:var(--danger)}
+    .t-title{font-weight:900;font-size:13px;color:#34d399}
+    .toast-item.err .t-title{color:#f87171}
+    .t-reason{font-size:12px;color:#cbd5e1;margin-top:2px}
+    .t-bar{position:absolute;bottom:0;right:0;height:3px;background:#10b981;animation:barShrink 4s linear forwards}
+    .toast-item.err .t-bar{background:#ef4444}
+    .cf{position:fixed;top:-15px;width:8px;height:12px;border-radius:2px;z-index:9998;pointer-events:none;animation:cfFall linear forwards}
   </style>
 </head>
 <body>
   <div class="login-overlay" id="loginOverlay">
     <div class="login-box">
-      <h2 style="margin-bottom:14px">🔒 Admin</h2>
-      <input type="text" id="adminUser" placeholder="Username">
-      <input type="password" id="adminPass" placeholder="Password">
+      <h3 style="margin-bottom:12px">لوحة الإدارة</h3>
+      <input type="text" id="adminUser" placeholder="User" onkeypress="if(event.key==='Enter')doAdminLogin()">
+      <input type="password" id="adminPass" placeholder="Pass" onkeypress="if(event.key==='Enter')doAdminLogin()">
       <button class="btn btn-primary" style="width:100%" onclick="doAdminLogin()">دخول</button>
     </div>
   </div>
 
   <div id="adminApp" style="display:none">
     <div class="topbar">
-      <div class="logo">⚡ <span>SLAP AURA ADMIN</span></div>
-      <button class="btn btn-ghost" style="padding:7px 12px;font-size:12px" onclick="location.href='/'">← الموقع</button>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button class="dots-btn" onclick="toggleAdmMenu()" aria-label="القائمة">⋮</button>
+        <span class="live-dot" title="Admin Active"></span>
+        <b>SLAP <span style="color:var(--secondary)">ADMIN</span></b>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-ghost btn-sm" onclick="loadCurrent()">تحديث</button>
+        <button class="btn btn-ghost btn-sm" onclick="location.href='/'">الموقع</button>
+      </div>
     </div>
 
-    <div class="tabs-bar">
-      <button class="tab active" data-tab="dash">📊 القيادة</button>
-      <button class="tab" data-tab="roles">🎖️ الرتب</button>
-      <button class="tab" data-tab="subs">💵 الاشتراكات</button>
-      <button class="tab" data-tab="bans">🛡️ الحظر</button>
-      <button class="tab" data-tab="keys">🔑 المفاتيح</button>
-      <button class="tab" data-tab="players">👥 اللاعبين</button>
-      <button class="tab" data-tab="tickets">🎫 التذاكر</button>
-      <button class="tab" data-tab="finder">🔍 Finder</button>
+    <div class="drawer-bg" id="admBg" onclick="toggleAdmMenu(false)"></div>
+    <div class="drawer" id="admDrw">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:8px;border-bottom:1px solid var(--border)">
+        <b>الإدارة</b>
+        <button class="dots-btn" style="width:28px;height:28px;font-size:13px" onclick="toggleAdmMenu(false)">✕</button>
+      </div>
+      <button class="nav-item active" data-tab="dash" onclick="goAdmTab('dash')"><span>القيادة</span><span class="nav-arrow">‹</span></button>
+      <button class="nav-item" data-tab="roles" onclick="goAdmTab('roles')"><span>الرتب</span><span class="nav-arrow">‹</span></button>
+      <button class="nav-item" data-tab="subs" onclick="goAdmTab('subs')"><span>الاشتراكات</span><span class="nav-arrow">‹</span></button>
+      <button class="nav-item" data-tab="bans" onclick="goAdmTab('bans')"><span>الحظر</span><span class="nav-arrow">‹</span></button>
+      <button class="nav-item" data-tab="keys" onclick="goAdmTab('keys')"><span>المفاتيح</span><span class="nav-arrow">‹</span></button>
+      <button class="nav-item" data-tab="players" onclick="goAdmTab('players')"><span>اللاعبين</span><span class="nav-arrow">‹</span></button>
+      <button class="nav-item" data-tab="tickets" onclick="goAdmTab('tickets')"><span>التذاكر</span><span class="nav-arrow">‹</span></button>
+      <button class="nav-item" data-tab="finder" onclick="goAdmTab('finder')"><span>Finder</span><span class="nav-arrow">‹</span></button>
     </div>
 
     <div class="content">
       <div class="tab-panel active" id="tab-dash">
         <div class="stats">
-          <div class="stat"><label>المفاتيح</label><div class="stat-val" style="color:#818cf8" id="s-keys">0</div></div>
-          <div class="stat"><label>الحظر</label><div class="stat-val" style="color:#f87171" id="s-bans">0</div></div>
-          <div class="stat"><label>نشط</label><div class="stat-val" style="color:#fbbf24" id="s-active">0</div></div>
-          <div class="stat"><label>مستخدمين</label><div class="stat-val" style="color:#10b981" id="s-users">0</div></div>
+          <div class="stat stat-float" style="animation-delay:0s"><label>المفاتيح</label><div id="s-keys" style="font-size:22px;font-weight:900;color:#a5b4fc">0</div></div>
+          <div class="stat stat-float" style="animation-delay:.12s"><label>الحظر</label><div id="s-bans" style="font-size:22px;font-weight:900;color:#f87171">0</div></div>
+          <div class="stat stat-float" style="animation-delay:.24s"><label>نشط</label><div id="s-active" style="font-size:22px;font-weight:900;color:#fbbf24">0</div></div>
+          <div class="stat stat-float" style="animation-delay:.36s"><label>المستخدمين</label><div id="s-users" style="font-size:22px;font-weight:900;color:#34d399">0</div></div>
+        </div>
+        <div style="display:flex;gap:7px;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="goAdmTab('tickets')">التذاكر</button>
+          <button class="btn btn-success" onclick="goAdmTab('subs')">الاشتراكات</button>
+          <button class="btn btn-ghost" onclick="goAdmTab('keys')">المفاتيح</button>
+          <button class="btn btn-ghost" onclick="goAdmTab('roles')">الرتب</button>
         </div>
       </div>
 
       <div class="tab-panel" id="tab-roles">
-        <div class="card" style="max-width:560px;margin-bottom:14px">
-          <h3>🎖️ تعيين رتبة</h3>
-          <input type="text" id="roleTarget" placeholder="البريد أو ID">
+        <div class="card" style="max-width:480px;margin-bottom:10px">
+          <h4>رتبة</h4>
+          <input type="text" id="roleTarget" placeholder="البريد أو ID" style="margin-top:8px">
           <select id="roleSelect">
             <option value="member">Member</option>
             <option value="vip">VIP</option>
@@ -78,8 +247,7 @@
             <option value="admin">Admin</option>
             <option value="owner">Owner</option>
           </select>
-          <button class="btn btn-primary" style="width:100%" onclick="assignRole()">💾 حفظ</button>
-          <div id="roleResult" style="margin-top:8px;font-weight:800"></div>
+          <button class="btn btn-primary" style="width:100%" onclick="assignRole()">حفظ</button>
         </div>
         <div class="table-box">
           <table><thead><tr><th>المستخدم</th><th>الرتبة</th><th>سريع</th></tr></thead><tbody id="t-roles"></tbody></table>
@@ -87,32 +255,32 @@
       </div>
 
       <div class="tab-panel" id="tab-subs">
-        <div class="card" style="max-width:560px;margin-bottom:14px">
-          <h3>🎁 إهداء اشتراك</h3>
-          <input type="text" id="subEmail" placeholder="البريد أو ID">
-          <select id="subTier">
-            <option value="pro">Pro</option>
-            <option value="lifetime">Lifetime</option>
-          </select>
-          <input type="number" id="subDays" min="0" placeholder="الأيام">
-          <input type="text" id="subNote" maxlength="160" placeholder="رسالة">
-          <button class="btn btn-primary" style="width:100%" onclick="assignTier()">🎁 تفعيل</button>
-          <div id="subResult" style="margin-top:8px;font-weight:800"></div>
-        </div>
-        <div class="card" style="max-width:560px">
-          <h3>💵 إضافة رصيد ($)</h3>
-          <input type="text" id="usdTarget" placeholder="البريد أو ID">
-          <input type="number" id="usdAmt" min="0.5" step="0.5" placeholder="المبلغ">
-          <input type="text" id="usdNote" maxlength="160" placeholder="رسالة">
-          <button class="btn btn-success" style="width:100%" onclick="addUsdBalance()">💵 إضافة</button>
-          <div id="usdResult" style="margin-top:8px;font-weight:800"></div>
+        <div class="grid2">
+          <div class="card">
+            <h4>منح باقة</h4>
+            <input type="text" id="subEmail" placeholder="البريد أو ID" style="margin-top:8px">
+            <select id="subTier">
+              <option value="pro">Pro</option>
+              <option value="lifetime">Lifetime</option>
+            </select>
+            <input type="number" id="subDays" min="0" placeholder="الأيام">
+            <input type="text" id="subNote" maxlength="160" placeholder="رسالة">
+            <button class="btn btn-primary" style="width:100%" onclick="assignTier()">تفعيل</button>
+          </div>
+          <div class="card">
+            <h4>إضافة رصيد ($)</h4>
+            <input type="text" id="usdTarget" placeholder="البريد أو ID" style="margin-top:8px">
+            <input type="number" id="usdAmt" min="0.5" step="0.5" placeholder="المبلغ">
+            <input type="text" id="usdNote" maxlength="160" placeholder="السبب">
+            <button class="btn btn-success" style="width:100%" onclick="addUsdBalance()">إضافة</button>
+          </div>
         </div>
       </div>
 
       <div class="tab-panel" id="tab-bans">
-        <div class="card" style="max-width:460px">
-          <h3>🔨 حظر</h3>
-          <select id="banType">
+        <div class="card" style="max-width:450px">
+          <h4>حظر</h4>
+          <select id="banType" style="margin-top:8px">
             <option value="ip">IP</option>
             <option value="user">User ID</option>
             <option value="hwid">HWID</option>
@@ -120,7 +288,7 @@
           <input type="text" id="banTarget" placeholder="الهدف">
           <input type="number" id="banDays" value="30">
           <input type="text" id="banReason" placeholder="السبب">
-          <button class="btn btn-danger" style="width:100%" onclick="doBan()">تنفيذ</button>
+          <button class="btn btn-danger" style="width:100%" onclick="doBan()">حظر</button>
         </div>
         <div class="table-box">
           <table><thead><tr><th>النوع</th><th>الهدف</th><th>السبب</th><th>فك</th></tr></thead><tbody id="t-bans"></tbody></table>
@@ -128,20 +296,19 @@
       </div>
 
       <div class="tab-panel" id="tab-keys">
-        <div class="card" style="max-width:720px;margin-bottom:14px">
-          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
-            <input type="text" id="k-user" placeholder="إيميل أو ID" style="margin:0;flex:2;min-width:160px">
-            <input type="number" id="k-days" value="30" min="0" style="margin:0;flex:1;min-width:90px">
-            <button class="btn btn-success btn-sm" onclick="createAdminKey()">➕ إصدار</button>
+        <div class="card" style="max-width:680px;margin-bottom:10px">
+          <div style="display:flex;gap:6px;margin-bottom:8px;margin-top:8px">
+            <input type="text" id="k-user" placeholder="إيميل أو ID" style="margin:0;flex:2">
+            <input type="number" id="k-days" value="30" min="0" style="margin:0;flex:1">
+            <button class="btn btn-success btn-sm" onclick="createAdminKey()">إصدار</button>
           </div>
-          <div id="k-created" style="margin-bottom:8px;font-weight:800;color:#10b981"></div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <input type="text" id="k-search" placeholder="LV-XXXX" style="margin:0;flex:2;min-width:160px">
-            <button class="btn btn-primary btn-sm" onclick="kAct(kSearchVal(),'set_days',kDaysVal())">⏱️ مدة</button>
-            <button class="btn btn-ghost btn-sm" onclick="kAct(kSearchVal(),'toggle')">⏸️/▶️</button>
-            <button class="btn btn-success btn-sm" onclick="kAct(kSearchVal(),'renew',kDaysVal()||30)">🔄 تجديد</button>
-            <button class="btn btn-danger btn-sm" onclick="kAct(kSearchVal(),'delete')">🗑️ مسح</button>
-            <button class="btn btn-ghost btn-sm" onclick="kAct('_','clean')">🧹 تنظيف</button>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <input type="text" id="k-search" placeholder="LV-XXXX" style="margin:0;flex:2">
+            <button class="btn btn-primary btn-sm" onclick="kAct(kSearchVal(),'set_days',kDaysVal())">أيام</button>
+            <button class="btn btn-ghost btn-sm" onclick="kAct(kSearchVal(),'toggle')">إيقاف</button>
+            <button class="btn btn-success btn-sm" onclick="kAct(kSearchVal(),'renew',kDaysVal()||30)">تجديد</button>
+            <button class="btn btn-danger btn-sm" onclick="kAct(kSearchVal(),'delete')">حذف</button>
+            <button class="btn btn-ghost btn-sm" onclick="kAct('_','clean')">تنظيف</button>
           </div>
         </div>
         <div class="table-box">
@@ -163,33 +330,141 @@
 
       <div class="tab-panel" id="tab-finder">
         <div class="table-box">
-          <table><thead><tr><th>JobId</th><th>لاعبين</th><th>محدث</th></tr></thead><tbody id="t-finder"></tbody></table>
+          <table><thead><tr><th>JobId</th><th>لاعبين</th><th>تحديث</th></tr></thead><tbody id="t-finder"></tbody></table>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="toast" id="toast"></div>
+  <div class="toast-stack" id="toastStack"></div>
+
   <script>
-    var au='',ap='';
-    function toast(m,t='ok'){toast.textContent=m;toast.className='toast show '+t;setTimeout(()=>toast.classList.remove('show'),3200)}
-    function kSearchVal(){return document.getElementById('k-search').value.trim()}
-    function kDaysVal(){var v=parseInt(document.getElementById('k-days').value,10);return isNaN(v)?30:Math.max(0,v)}
-    function fmtExp(exp){if(exp===0)return'♾️ دائم';if(!exp)return'-';var d=Math.ceil((exp-Date.now())/864e5);return d>0?d+' يوم':'منتهي'}
-    async function doAdminLogin(){au=adminUser.value;ap=adminPass.value;if(!au||!ap)return toast('ادخل البيانات','err');var r=await api('stats');if(!r||r.status===401)return;loginOverlay.style.display='none';adminApp.style.display='block';var d=await r.json();document.getElementById('s-keys').textContent=d.stats.keys||0;document.getElementById('s-bans').textContent=d.stats.bans||0;document.getElementById('s-active').textContent=d.stats.active_bans||0;document.getElementById('s-users').textContent=d.stats.users||0}
-    document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.tab-panel').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById('tab-'+b.dataset.tab).classList.add('active');loadCurrent()});
-    async function api(c,e=''){var r=await fetch('/admin?user='+encodeURIComponent(au)+'&pass='+encodeURIComponent(ap)+'&cmd='+c+e);if(r.status===401){toast('بيانات غلط','err');adminApp.style.display='none';loginOverlay.style.display='flex';return null}return r}
-    async function loadCurrent(){var t=document.querySelector('.tab.active').dataset.tab;if(t==='dash'){var r=await api('stats');if(!r)return;var d=await r.json();document.getElementById('s-keys').textContent=d.stats.keys||0;document.getElementById('s-bans').textContent=d.stats.bans||0;document.getElementById('s-active').textContent=d.stats.active_bans||0;document.getElementById('s-users').textContent=d.stats.users||0}if(t==='roles'){var r=await api('all_roles');if(!r)return;var d=await r.json();document.getElementById('t-roles').innerHTML=(d.roles||[]).map(x=>'<tr><td>'+x.target+'</td><td><span class="role-badge" style="color:'+x.color+'">'+x.emoji+' '+x.label+'</span></td><td><button class="btn btn-sm btn-ghost" onclick="quickRole(\''+x.target+'\',\'vip\')">VIP</button><button class="btn btn-sm btn-ghost" onclick="quickRole(\''+x.target+'\',\'admin\')">Admin</button><button class="btn btn-sm btn-danger" onclick="quickRole(\''+x.target+'\',\'member\')">إزالة</button></td></tr>').join('')||'<tr><td colspan="3" style="text-align:center">لا يوجد</td></tr>'}if(t==='bans'){var r=await api('all_bans');if(!r)return;var d=await r.json();document.getElementById('t-bans').innerHTML=d.bans.filter(b=>!b.unbanned).map(b=>'<tr><td>'+b.type+'</td><td>'+b.target+'</td><td>'+b.reason+'</td><td><button class="btn btn-sm btn-success" onclick="unban(\''+b.type+'\',\''+b.target+'\')">فك</button></td></tr>').join('')||'<tr><td colspan="4" style="text-align:center">لا يوجد</td></tr>'}if(t==='keys'){var r=await api('all_keys');if(!r)return;var d=await r.json();document.getElementById('t-keys').innerHTML=(d.keys||[]).map(k=>{var st=k.disabled?'<span style="color:#ef4444;font-weight:800">⏸️ متوقف</span>':'<span style="color:#10b981;font-weight:800">▶️ نشط</span>';return'<tr><td><code>'+k.key+'</code></td><td>'+st+'</td><td>'+fmtExp(k.expiresAt)+'</td><td>'+(k.tier||'-')+'</td><td><button class="btn btn-sm btn-primary" onclick="kAct(\''+k.key+'\',\'set_days\',kDaysVal())">⏱️</button><button class="btn btn-sm btn-ghost" onclick="kAct(\''+k.key+'\',\'toggle\')">⏸️</button><button class="btn btn-sm btn-success" onclick="kAct(\''+k.key+'\',\'renew\',kDaysVal()||30)">🔄</button><button class="btn btn-sm btn-danger" onclick="kAct(\''+k.key+'\',\'delete\')">🗑️</button></td></tr>'}).join('')||'<tr><td colspan="5" style="text-align:center">لا يوجد</td></tr>'}if(t==='players'){var r=await api('active_players');if(!r)return;var d=await r.json();document.getElementById('t-players').innerHTML=Object.entries(d.players||{}).map(([id,p])=>'<tr><td>'+p.name+'</td><td>'+id+'</td><td>'+(p.role||'member')+'</td><td>'+p.ip+'</td></tr>').join('')||'<tr><td colspan="4" style="text-align:center">لا يوجد</td></tr>'}if(t==='tickets'){var r=await api('tickets');if(!r)return;var d=await r.json();document.getElementById('t-tickets').innerHTML=d.tickets.map((tk,i)=>'<tr><td>'+tk.userId+'</td><td>'+(tk.email||'-')+'</td><td>'+tk.msg+'<div class="rbox" id="rb_'+i+'"><input type="text" id="ri_'+i+'" placeholder="اكتب ردك..." style="margin:0 0 8px 0;padding:8px"><button class="btn btn-sm btn-success" onclick="sendReply(\''+encodeURIComponent(tk.id||'')+'\',\''+encodeURIComponent(tk.email||'')+'\',\'ri_'+i+'\')">إرسال</button><button class="btn btn-sm btn-ghost" onclick="toggleReply(\'rb_'+i+'\')">إلغاء</button></div></td><td><button class="btn btn-sm btn-primary" onclick="toggleReply(\'rb_'+i+'\')">💬 رد</button></td></tr>').join('')||'<tr><td colspan="4" style="text-align:center">لا يوجد</td></tr>'}if(t==='finder'){var r=await api('finder_stats');if(!r)return;var d=await r.json();document.getElementById('t-finder').innerHTML=d.servers.map(s=>'<tr><td><code>'+s.jobId.slice(0,10)+'</code></td><td>'+s.players+'/'+s.maxPlayers+'</td><td>'+s.ageSec+'s</td></tr>').join('')||'<tr><td colspan="3" style="text-align:center">لا يوجد</td></tr>'}}
-    function toggleReply(id){var el=document.getElementById(id);if(!el)return;el.classList.toggle('open');var inp=el.querySelector('input');if(inp&&el.classList.contains('open'))inp.focus()}
-    async function sendReply(tidEnc,emEnc,inpId){var inp=document.getElementById(inpId),rp=inp?inp.value.trim():'';if(!rp)return toast('اكتب الرد أولاً','err');var r=await api('reply_ticket','&id='+tidEnc+'&email='+emEnc+'&reply='+encodeURIComponent(rp));if(!r)return;var d=await r.json();if(d.success){toast('تم الإرسال ✅');loadCurrent()}else toast(d.message||'فشل ❌','err')}
-    async function createAdminKey(){var u=document.getElementById('k-user').value.trim(),days=kDaysVal(),r=await api('create_key','&target='+encodeURIComponent(u)+'&days='+days);if(!r)return;var d=await r.json(),out=document.getElementById('k-created');out.style.color=d.success?'#10b981':'#ef4444';out.textContent=d.success?'✅ المفتاح: '+d.key:'❌ '+(d.message||'فشل');if(d.success){toast('تم الإصدار ✅');document.getElementById('k-search').value=d.key;loadCurrent()}}
-    async function kAct(k,act,days){if(act!=='clean'&&!k)return toast('ادخل المفتاح','err');var r=await api('key_action','&key='+encodeURIComponent(k||'_')+'&act='+act+(days!==undefined?'&days='+days:''));if(!r)return;var d=await r.json();toast(d.message||(d.success?'تم ✅':'فشل'),d.success?'ok':'err');loadCurrent()}
-    async function assignRole(){var target=roleTarget.value.trim(),role=roleSelect.value,res=roleResult;if(!target)return res.textContent='ادخل البريد أو ID';var r=await api('assign_role','&target='+encodeURIComponent(target)+'&role='+encodeURIComponent(role));if(!r)return;var d=await r.json();res.style.color=d.success?'#10b981':'#ef4444';res.textContent=d.success?'✅ تم تعيين '+role:'❌ '+(d.message||'فشل');if(d.success){toast('تم الحفظ ✅');roleTarget.value='';loadCurrent()}}
-    async function quickRole(t,r0){await api('assign_role','&target='+encodeURIComponent(t)+'&role='+r0);toast('تم التحديث ✅');loadCurrent()}
-    async function assignTier(){var em=subEmail.value.trim(),tier=subTier.value,dy=subDays.value.trim(),nt=subNote.value.trim(),res=subResult;if(!em)return res.textContent='ادخل الإيميل أو ID';var r=await api('assign_tier','&email='+encodeURIComponent(em)+'&tier='+tier+(dy!==''?'&days='+encodeURIComponent(dy):'')+(nt?'&note='+encodeURIComponent(nt):''));if(!r)return;var d=await r.json();res.style.color=d.success?'#10b981':'#ef4444';res.textContent=d.success?'✅ تم التفعيل! المفتاح: '+d.key:'❌ '+(d.message||'فشل');if(d.success)toast('🎁 تم الإرسال!')}
-    async function addUsdBalance(){var tg=document.getElementById('usdTarget').value.trim(),amt=parseFloat(document.getElementById('usdAmt').value),nt=document.getElementById('usdNote').value.trim(),res=document.getElementById('usdResult');if(!tg||!amt||amt<=0){res.style.color='#ef4444';res.textContent='ادخل المستخدم والمبلغ';return}var r=await api('add_usd','&target='+encodeURIComponent(tg)+'&amount='+encodeURIComponent(amt)+(nt?'&note='+encodeURIComponent(nt):''));if(!r)return;var d=await r.json();res.style.color=d.success?'#10b981':'#ef4444';res.textContent=d.success?'✅ أُضيف $'+Number(d.amount).toFixed(2)+' | الرصيد: $'+Number(d.balance).toFixed(2):'❌ '+(d.message||'فشل');if(d.success){toast('💵 تمت الإضافة!');document.getElementById('usdAmt').value='';document.getElementById('usdNote').value=''}}
-    async function doBan(){await api('ban','&type='+banType.value+'&target='+banTarget.value+'&days='+banDays.value+'&reason='+banReason.value);toast('تم الحظر ✅');loadCurrent()}
-    async function unban(t,v){await api('unban','&type='+t+'&target='+v);toast('تم الفك ✅');loadCurrent()}
+    var au = '', ap = '';
+
+    document.addEventListener('pointerdown', e => {
+      const b = e.target.closest('.btn');
+      if (!b) return;
+      const r = document.createElement('span'), d = Math.max(b.clientWidth, b.clientHeight), rc = b.getBoundingClientRect();
+      r.className = 'rpl'; r.style.width = r.style.height = d + 'px';
+      r.style.left = (e.clientX - rc.left - d / 2) + 'px';
+      r.style.top = (e.clientY - rc.top - d / 2) + 'px';
+      b.appendChild(r); setTimeout(() => r.remove(), 500);
+    });
+
+    function toast(t, r = 'ok', tp) {
+      let rs = '', ty = 'ok';
+      if (tp !== undefined) { rs = r; ty = tp; } else if (r === 'ok' || r === 'err') ty = r; else rs = r;
+      const st = document.getElementById('toastStack');
+      if (!st) return;
+      const el = document.createElement('div');
+      el.className = 'toast-item ' + ty;
+      el.innerHTML = `<div class="t-title">${t}</div>${rs ? `<div class="t-reason">${rs}</div>` : ''}<div class="t-bar"></div>`;
+      st.appendChild(el);
+      while (st.children.length > 3) st.firstChild.remove();
+      setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 250); }, 4000);
+    }
+
+    function boomFx() {
+      const cols = ['#10b981', '#c084fc', '#6366f1', '#fbbf24'];
+      for (let i = 0; i < 40; i++) {
+        const c = document.createElement('div');
+        c.className = 'cf'; c.style.left = Math.random() * 100 + 'vw';
+        c.style.background = cols[i % 4]; c.style.animationDuration = (1.2 + Math.random() * 1.2) + 's';
+        document.body.appendChild(c); setTimeout(() => c.remove(), 2600);
+      }
+      document.querySelectorAll('.card,.stat').forEach((x, i) => {
+        if (i < 5) { x.classList.remove('boom'); void x.offsetWidth; x.classList.add('boom'); }
+      });
+    }
+
+    function toggleAdmMenu(f) {
+      var d = document.getElementById('admDrw'), bg = document.getElementById('admBg');
+      var op = f !== undefined ? f : !d.classList.contains('open');
+      d.classList.toggle('open', op); bg.classList.toggle('open', op);
+    }
+
+    function goAdmTab(n) {
+      document.querySelectorAll('.nav-item').forEach(x => x.classList.toggle('active', x.dataset.tab === n));
+      document.querySelectorAll('.tab-panel').forEach(p => {
+        const isTarget = p.id === 'tab-' + n;
+        p.classList.toggle('active', isTarget);
+        if (isTarget) { p.style.animation = 'none'; void p.offsetWidth; p.style.animation = ''; }
+      });
+      toggleAdmMenu(false);
+      loadCurrent();
+    }
+
+    function kSearchVal() { return document.getElementById('k-search').value.trim(); }
+    function kDaysVal() { var v = parseInt(document.getElementById('k-days').value, 10); return isNaN(v) ? 30 : Math.max(0, v); }
+    function fmtExp(exp) { if (exp === 0) return 'دائم'; if (!exp) return '-'; var d = Math.ceil((exp - Date.now()) / 864e5); return d > 0 ? d + 'd' : 'منتهي'; }
+
+    async function doAdminLogin() {
+      au = adminUser.value; ap = adminPass.value;
+      var r = await api('stats');
+      if (!r || r.status === 401) return;
+      loginOverlay.style.display = 'none';
+      adminApp.style.display = 'block';
+      boomFx();
+      toast('تم الدخول', 'ok');
+      loadCurrent();
+    }
+
+    async function api(c, e = '') {
+      var r = await fetch('/admin?user=' + encodeURIComponent(au) + '&pass=' + encodeURIComponent(ap) + '&cmd=' + c + e);
+      if (r.status === 401) {
+        toast('خطأ', 'err');
+        adminApp.style.display = 'none';
+        loginOverlay.style.display = 'flex';
+        return null;
+      }
+      return r;
+    }
+
+    async function loadCurrent() {
+      var t = document.querySelector('.tab-panel.active').id.replace('tab-', '');
+      if (t === 'dash') {
+        var r = await api('stats'); if (!r) return; var d = await r.json();
+        document.getElementById('s-keys').textContent = d.stats.keys || 0;
+        document.getElementById('s-bans').textContent = d.stats.bans || 0;
+        document.getElementById('s-active').textContent = d.stats.active_bans || 0;
+        document.getElementById('s-users').textContent = d.stats.users || 0;
+      }
+      if (t === 'roles') {
+        var r = await api('all_roles'); if (!r) return; var d = await r.json();
+        document.getElementById('t-roles').innerHTML = (d.roles || []).map(x => '<tr><td>' + x.target + '</td><td>' + x.label + '</td><td><button class="btn btn-sm btn-ghost" onclick="quickRole(\'' + x.target + '\',\'vip\')">VIP</button><button class="btn btn-sm btn-danger" onclick="quickRole(\'' + x.target + '\',\'member\')">إزالة</button></td></tr>').join('') || '<tr><td colspan="3">لا يوجد</td></tr>';
+      }
+      if (t === 'bans') {
+        var r = await api('all_bans'); if (!r) return; var d = await r.json();
+        document.getElementById('t-bans').innerHTML = d.bans.filter(b => !b.unbanned).map(b => '<tr><td>' + b.type + '</td><td>' + b.target + '</td><td>' + b.reason + '</td><td><button class="btn btn-sm btn-success" onclick="unban(\'' + b.type + '\',\'' + b.target + '\')">فك</button></td></tr>').join('') || '<tr><td colspan="4">لا يوجد</td></tr>';
+      }
+      if (t === 'keys') {
+        var r = await api('all_keys'); if (!r) return; var d = await r.json();
+        document.getElementById('t-keys').innerHTML = (d.keys || []).map(k => '<tr><td><code>' + k.key + '</code></td><td>' + (k.disabled ? 'موقوف' : 'نشط') + '</td><td>' + fmtExp(k.expiresAt) + '</td><td>' + (k.tier || '-') + '</td><td><button class="btn btn-sm btn-primary" onclick="kAct(\'' + k.key + '\',\'set_days\',kDaysVal())">أيام</button><button class="btn btn-sm btn-ghost" onclick="kAct(\'' + k.key + '\',\'toggle\')">إيقاف</button><button class="btn btn-sm btn-danger" onclick="kAct(\'' + k.key + '\',\'delete\')">حذف</button></td></tr>').join('') || '<tr><td colspan="5">لا يوجد</td></tr>';
+      }
+      if (t === 'players') {
+        var r = await api('active_players'); if (!r) return; var d = await r.json();
+        document.getElementById('t-players').innerHTML = Object.entries(d.players || {}).map(([id, p]) => '<tr><td>' + p.name + '</td><td>' + id + '</td><td>' + (p.role || 'member') + '</td><td>' + p.ip + '</td></tr>').join('') || '<tr><td colspan="4">لا يوجد</td></tr>';
+      }
+      if (t === 'tickets') {
+        var r = await api('tickets'); if (!r) return; var d = await r.json();
+        document.getElementById('t-tickets').innerHTML = d.tickets.map((tk, i) => '<tr><td>' + tk.userId + '</td><td>' + (tk.email || '-') + '</td><td>' + tk.msg + (tk.reply ? '<div style="color:#34d399;font-size:11px">رد: ' + tk.reply + '</div>' : '') + '<div class="rbox" id="rb_' + i + '"><input type="text" id="ri_' + i + '" placeholder="الرد..." style="margin:4px 0"><button class="btn btn-sm btn-success" onclick="sendReply(\'' + encodeURIComponent(tk.id || '') + '\',\'' + encodeURIComponent(tk.email || '') + '\',\'ri_' + i + '\')">إرسال</button></div></td><td><button class="btn btn-sm btn-primary" onclick="toggleReply(\'rb_' + i + '\')">رد</button></td></tr>').join('') || '<tr><td colspan="4">لا تذاكر</td></tr>';
+      }
+      if (t === 'finder') {
+        var r = await api('finder_stats'); if (!r) return; var d = await r.json();
+        document.getElementById('t-finder').innerHTML = d.servers.map(s => '<tr><td><code>' + s.jobId.slice(0, 10) + '</code></td><td>' + s.players + '/' + s.maxPlayers + '</td><td>' + s.ageSec + 's</td></tr>').join('') || '<tr><td colspan="3">لا يوجد</td></tr>';
+      }
+    }
+
+    function toggleReply(id) { var el = document.getElementById(id); if (el) el.classList.toggle('open'); }
+    async function sendReply(tidEnc, emEnc, inpId) { var rp = document.getElementById(inpId).value.trim(); if (!rp) return toast('اكتب الرد', 'err'); var r = await api('reply_ticket', '&id=' + tidEnc + '&email=' + emEnc + '&reply=' + encodeURIComponent(rp)); if (!r) return; var d = await r.json(); if (d.success) { boomFx(); toast('تم الرد', 'ok'); loadCurrent(); } else toast('فشل', d.message || 'خطأ', 'err'); }
+    async function createAdminKey() { var r = await api('create_key', '&target=' + encodeURIComponent(document.getElementById('k-user').value.trim()) + '&days=' + kDaysVal()); if (!r) return; var d = await r.json(); if (d.success) { document.getElementById('k-search').value = d.key; boomFx(); toast('أصدر', d.key, 'ok'); loadCurrent(); } else toast('فشل', d.message || 'خطأ', 'err'); }
+    async function kAct(k, act, days) { if (act !== 'clean' && !k) return toast('أدخل المفتاح', 'err'); var r = await api('key_action', '&key=' + encodeURIComponent(k || '_') + '&act=' + act + (days !== undefined ? '&days=' + days : '')); if (!r) return; var d = await r.json(); toast(d.success ? 'تم' : 'فشل', d.message || '', d.success ? 'ok' : 'err'); loadCurrent(); }
+    async function assignRole() { var target = roleTarget.value.trim(), role = roleSelect.value; if (!target) return toast('أدخل الهدف', 'err'); var r = await api('assign_role', '&target=' + encodeURIComponent(target) + '&role=' + encodeURIComponent(role)); if (!r) return; var d = await r.json(); if (d.success) { roleTarget.value = ''; boomFx(); toast('حدث', target + ' -> ' + role, 'ok'); loadCurrent(); } else toast('فشل', 'err'); }
+    async function quickRole(t, r0) { await api('assign_role', '&target=' + encodeURIComponent(t) + '&role=' + r0); toast('غير', t + ' -> ' + r0, 'ok'); loadCurrent(); }
+    async function assignTier() { var em = subEmail.value.trim(); if (!em) return toast('أدخل المستلم', 'err'); var r = await api('assign_tier', '&email=' + encodeURIComponent(em) + '&tier=' + subTier.value + (subDays.value !== '' ? '&days=' + encodeURIComponent(subDays.value) : '') + (subNote.value ? '&note=' + encodeURIComponent(subNote.value) : '')); if (!r) return; var d = await r.json(); if (d.success) { boomFx(); toast('فعل', d.key, 'ok'); } else toast('فشل', d.message || 'خطأ', 'err'); }
+    async function addUsdBalance() { var tg = document.getElementById('usdTarget').value.trim(), amt = parseFloat(document.getElementById('usdAmt').value); if (!tg || !amt || amt <= 0) return toast('ناقص', 'err'); var r = await api('add_usd', '&target=' + encodeURIComponent(tg) + '&amount=' + encodeURIComponent(amt) + (document.getElementById('usdNote').value ? '&note=' + encodeURIComponent(document.getElementById('usdNote').value) : '')); if (!r) return; var d = await r.json(); if (d.success) { boomFx(); toast('أضيف', '$' + Number(d.balance).toFixed(2), 'ok'); } else toast('فشل', d.message || 'خطأ', 'err'); }
+    async function doBan() { var tg = banTarget.value.trim(); if (!tg) return toast('أدخل الهدف', 'err'); await api('ban', '&type=' + banType.value + '&target=' + encodeURIComponent(tg) + '&days=' + banDays.value + '&reason=' + encodeURIComponent(banReason.value)); toast('حظر', tg, 'ok'); loadCurrent(); }
+    async function unban(t, v) { await api('unban', '&type=' + t + '&target=' + encodeURIComponent(v)); toast('فك الحظر', v, 'ok'); loadCurrent(); }
   </script>
 </body>
 </html>
